@@ -1,0 +1,10 @@
+.DS_Store
+.merlin
+.bsb.lock
+npm-debug.log
+/lib/bs/
+/lib/js/
+/node_modules/
+/docs/PIXI/
+/bsdoc/
+.tgz

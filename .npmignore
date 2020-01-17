@@ -1,0 +1,7 @@
+docs/
+lib/
+.merlin
+.bsb.lock
+.tgz
+__tests__
+.github/
