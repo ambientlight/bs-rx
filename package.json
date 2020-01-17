@@ -3,11 +3,11 @@
     "version": "0.1.0",
     "description": "buckleScript bindings for RxJs v7",
     "scripts": {
-        "build": "./node_modules/.bin/bsb -make-world",
-        "clean": "./node_modules/.bin/bsb -clean",
-        "bsb": "./node_modules/.bin/bsb -make-world -w",
+        "build": "bsb -make-world",
+        "clean": "bsb -clean-world",
+        "bsb": "bsb -make-world -w",
         "docs": "bsdoc build -v --debug PIXI",
-        "test": "./node_modules/.bin/jest"
+        "test": "jest"
     },
     "repository": {
         "type": "git",
@@ -28,12 +28,10 @@
     "devDependencies": {
         "@glennsl/bs-jest": "^0.4.9",
         "bs-mocha": "^1.0.0",
-        "bs-platform": "^5.2.1",
-        "jest": "^24.9.0",
-        "reason-cli": "^3.3.3-macos-1"
+        "bs-platform": "7.0.2-dev.1",
+        "jest": "^24.9.0"
     },
     "dependencies": {
         "rxjs": "^7.0.0-alpha.0"
-    },
-    "peerDependencies": {}
+    }
 }
