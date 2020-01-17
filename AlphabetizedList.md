@@ -1,4 +1,4 @@
-#. Operators In Alphabetical Order
+# Operators In Alphabetical Order
 
 1. ajax
 2. audit
