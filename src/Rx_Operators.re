@@ -11,10 +11,15 @@ type operator('a, 'b) = t('a) => t('b);
     @return {Observable<T>} An Observable that performs rate-limiting of emissions from the source Observable.
  */
 [@bs.module "rxjs/operators"]
-external audit: (~durationSelector: [@bs.unwrap][
-  | `Subscribable('a => t('a))
-  | `Promise('a => Js.Promise.t('a))
-]) => operator('a, 'a) = "audit";
+external audit:
+  (
+    ~durationSelector: [@bs.unwrap] [
+                         | `Subscribable('a => t('a))
+                         | `Promise('a => Js.Promise.t('a))
+                       ]
+  ) =>
+  operator('a, 'a) =
+  "audit";
 
 /**
   Ignores source values for `duration` milliseconds, then emits the most recent
@@ -25,7 +30,9 @@ external audit: (~durationSelector: [@bs.unwrap][
     @return An Observable that performs rate-limiting of emissions from the source Observable.
  */
 [@bs.module "rxjs/operators"]
-external auditTime: (~duration: float, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) = "auditTime";
+external auditTime:
+  (~duration: float, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) =
+  "auditTime";
 
 /**
   Buffers the source Observable values until `closingNotifier` emits.
@@ -33,7 +40,7 @@ external auditTime: (~duration: float, ~scheduler: Rx_Scheduler.t=?, unit) => op
     @param {Observable<any>} closingNotifier An Observable that signals the buffer to be emitted on the output Observable.
     @return An Observable of buffers, which are arrays of values.
  */
-[@bs.module "rxjs/operators"] 
+[@bs.module "rxjs/operators"]
 external buffer: t('a) => operator('b, array('b)) = "buffer";
 
 /**
@@ -44,7 +51,10 @@ external buffer: t('a) => operator('b, array('b)) = "buffer";
     @return An Observable of arrays of buffered values
  */
 [@bs.module "rxjs/operators"]
-external bufferCount: (~bufferSize: int, ~startBufferEvery: int=?, unit) => operator('a, array('a)) = "bufferCount";
+external bufferCount:
+  (~bufferSize: int, ~startBufferEvery: int=?, unit) =>
+  operator('a, array('a)) =
+  "bufferCount";
 
 /**
   Buffers the source Observable values for a specific time period.
@@ -55,13 +65,17 @@ external bufferCount: (~bufferSize: int, ~startBufferEvery: int=?, unit) => oper
     @param scheduler(async) The scheduler on which to schedule the intervals that determine buffer boundaries.
     @return An observable of arrays of buffered values.
  */
-[@bs.module "rxjs/operators"] 
-external bufferTime: (
-  ~timeSpan: int, 
-  ~bufferCreationInterval: int=?, 
-  ~maxBufferSize: int=?, 
-  ~scheduler: Rx_Scheduler.t=?,
-  unit) => operator('a, array('a)) = "bufferTime";
+[@bs.module "rxjs/operators"]
+external bufferTime:
+  (
+    ~timeSpan: int,
+    ~bufferCreationInterval: int=?,
+    ~maxBufferSize: int=?,
+    ~scheduler: Rx_Scheduler.t=?,
+    unit
+  ) =>
+  operator('a, array('a)) =
+  "bufferTime";
 
 /**
   Buffers the source Observable values starting from an emission from
@@ -71,11 +85,20 @@ external bufferTime: (
     @param closingSelector A function that takes the value emitted by the `openings` observable and returns a Subscribable or Promise which, when it emits, signals that the associated buffer should be emitted and cleared
     @return An observable of arrays of buffered values
  */
-[@bs.module "rxjs/operators"] 
-external bufferToggle: (
-  ~opening: [@bs.unwrap][`Subscribable(t('o)) | `Promise(Js.Promise.t('o))],
-  ~closing: [@bs.unwrap][`Subscribable('o => t('c)) | `Promise('o => Js.Promise.t('c))]
-) => operator('a, array('a)) = "bufferToggle";
+[@bs.module "rxjs/operators"]
+external bufferToggle:
+  (
+    ~opening: [@bs.unwrap] [
+                | `Subscribable(t('o))
+                | `Promise(Js.Promise.t('o))
+              ],
+    ~closing: [@bs.unwrap] [
+                | `Subscribable('o => t('c))
+                | `Promise('o => Js.Promise.t('c))
+              ]
+  ) =>
+  operator('a, array('a)) =
+  "bufferToggle";
 
 /**
   Buffers the source Observable values, using a factory function of closing
@@ -85,7 +108,8 @@ external bufferToggle: (
     @return An observable of arrays of buffered values.
  */
 [@bs.module "rxjs/operators"]
-external bufferWhen: (unit => t('b)) => operator('a, array('a)) = "bufferWhen";
+external bufferWhen: (unit => t('b)) => operator('a, array('a)) =
+  "bufferWhen";
 
 /**
   Catches errors on the observable to be handled by returning a new observable or throwing an error.
@@ -94,7 +118,9 @@ external bufferWhen: (unit => t('b)) => operator('a, array('a)) = "bufferWhen";
     @return An observable that originates from either the source or the observable returned by the catch `selector` function.
  */
 [@bs.module "rxjs/operators"]
-external catchError: ([@bs.uncurry] (('err, t('a)) => t('b))) => operator('a, 'b) = "catchError";
+external catchError:
+  ([@bs.uncurry] (('err, t('a)) => t('b))) => operator('a, 'b) =
+  "catchError";
 
 /**
   Flattens an Observable-of-Observables by applying {@link combineLatest} when the Observable-of-Observables completes.
@@ -111,7 +137,8 @@ external catchError: ([@bs.uncurry] (('err, t('a)) => t('b))) => operator('a, 'b
 external combineAll: unit => operator(t('a), array('a)) = "combineAll";
 
 [@bs.module "rxjs/operators"]
-external _combineAllProject: (. (array('a) => 'r)) => operator(t('a), 'r) = "combineAll";
+external _combineAllProject: (. (array('a) => 'r)) => operator(t('a), 'r) =
+  "combineAll";
 
 type projectFn('a, 'r) = array('a) => 'r;
 
@@ -123,27 +150,30 @@ type projectFn('a, 'r) = array('a) => 'r;
   Every time an inner Observable emits, the output Observable emits
   When the returned observable emits, it emits all of the latest values by:
   it is called with each recent value from each inner Observable in whatever order they arrived, and the result of the `project` function is what is emitted by the output Observable.
-  
+
     @param project function to map the most recent values from each inner Observable into a new result.
     @see combineAll
  */
-let combineAllProject: projectFn('a, 'r) => operator(t('a), 'r) = (project: projectFn('a, 'r)) => {
-  let _makeVariadic: (. projectFn('a, 'r)) => projectFn('a, 'r) = [%bs.raw {|function(fn) {
+let combineAllProject: projectFn('a, 'r) => operator(t('a), 'r) =
+  (project: projectFn('a, 'r)) => {
+    let _makeVariadic: (. projectFn('a, 'r)) => projectFn('a, 'r) = [%bs.raw
+      {|function(fn) {
     return function(){
       return fn([].slice.call(arguments))
     }
-  }|}];
+  }|}
+    ];
 
-  let _project = _makeVariadic(. project)
-  _combineAllProject(. _project)
-};
+    let _project = _makeVariadic(. project);
+    _combineAllProject(. _project);
+  };
 
 /**
-  Converts a higher-order Observable into a first-order Observable 
+  Converts a higher-order Observable into a first-order Observable
   by concatenating the inner Observables in order.
 
    Joins every Observable emitted by the source (a higher-order Observable), in a serial fashion.
-   It subscribes to each inner Observable only after the previous inner Observable has completed, 
+   It subscribes to each inner Observable only after the previous inner Observable has completed,
    and merges all of their values into the returned observable.
 
    @return An Observable emitting values from all the inner Observables concatenated.
@@ -164,7 +194,8 @@ external concatAll: unit => operator(t('a), 'a) = "concatAll";
     @return An Observable that emits the result of applying the projection function (and the optional deprecated `resultSelector`) to each item emitted by the source Observable and taking values from each projected inner Observable sequentially.
  */
 [@bs.module "rxjs/operators"]
-external concatMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) = "concatMap";
+external concatMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) =
+  "concatMap";
 
 /**
   Projects each source value to the same Observable which is merged multiple
@@ -188,17 +219,23 @@ external concatMapTo: t('a) => operator('b, 'a) = "concatMapTo";
   to each observable source provided, one at a time, emitting all of their values, and not subscribing
   to the next one until it completes.
 
-    @param otherSources Other observable sources to subscribe to, in sequence, after the original source is complete.    
+    @param otherSources Other observable sources to subscribe to, in sequence, after the original source is complete.
     @return An Observable that emits the result of applying the projection function (and the optional deprecated `resultSelector`) to each item emitted by the source Observable and taking values from each projected inner Observable sequentially.
  */
 /*
-[@bs.module "rxjs/operators"][@bs.variadic]
-external concatWith: array(t('a)) => operator('a, array('a)) = "concatWith";
-*/
-
+ [@bs.module "rxjs/operators"][@bs.variadic]
+ external concatWith: array(t('a)) => operator('a, array('a)) = "concatWith";
+ */
 [@bs.module "rxjs/operators"]
 //FIXME: fails when predicated is labelled optional
-external _count: (~predicate: ([@bs.uncurry](~value: 'a, ~index: int, ~source: t('a)) => bool)) => operator('a, int) = "count";
+external _count:
+  (
+    ~predicate: [@bs.uncurry] (
+                  (~value: 'a, ~index: int, ~source: t('a)) => bool
+                )
+  ) =>
+  operator('a, int) =
+  "count";
 
 /**
   Counts the number of emissions on the source and emits that number when the
@@ -216,20 +253,30 @@ external _count: (~predicate: ([@bs.uncurry](~value: 'a, ~index: int, ~source: t
     @param predicate boolean function to select what values are to be counted
     @return An Observable of one number that represents the count as described above.
  */
-let count = (~predicate=(~value as _value, ~index as _idx, ~source as _src) => true, ()) => _count(~predicate);
+let count =
+    (
+      ~predicate=(~value as _value, ~index as _idx, ~source as _src) => true,
+      (),
+    ) =>
+  _count(~predicate);
 
 /**
   Emits a notification from the source Observable only after a particular time span
   determined by another Observable has passed without another source emission.
 
-    @param durationSelector A function that receives a value from the source Observable, for computing the timeout duration for each source value, returned as an Observable or a Promise.    
+    @param durationSelector A function that receives a value from the source Observable, for computing the timeout duration for each source value, returned as an Observable or a Promise.
     @return {Observable} An Observable that delays the emissions of the source Observable by the specified duration Observable returned by `durationSelector`, and may drop some values if they occur too frequently.
  */
 [@bs.module "rxjs/operators"]
-external debounce: (~durationSelector: [@bs.unwrap][
-  | `Subscribable('a => t('a))
-  | `Promise('a => Js.Promise.t('a))
-]) => operator('a, 'a) = "debounce";
+external debounce:
+  (
+    ~durationSelector: [@bs.unwrap] [
+                         | `Subscribable('a => t('a))
+                         | `Promise('a => Js.Promise.t('a))
+                       ]
+  ) =>
+  operator('a, 'a) =
+  "debounce";
 
 /**
   Emits a notification from the source Observable only after a particular time span
@@ -239,7 +286,9 @@ external debounce: (~durationSelector: [@bs.unwrap][
     @return An Observable that delays the emissions of the source Observable by the specified `dueTime`, and may drop some values if they occur too frequently.
  */
 [@bs.module "rxjs/operators"]
-external debounceTime: (~dueTime: float, ~scheduler: Rx_Scheduler.t) => operator('a, 'a) = "debounceTime";
+external debounceTime:
+  (~dueTime: float, ~scheduler: Rx_Scheduler.t) => operator('a, 'a) =
+  "debounceTime";
 
 /**
   Emits a given value if the source Observable completes without emitting any
@@ -258,7 +307,15 @@ external defaultIfEmpty: 'a => operator('a, 'a) = "defaultIfEmpty";
     @param scheduler The {@link SchedulerLike} to use for managing the timers that handle the time-shift for each item
     @return The {@link SchedulerLike} to use for managing the timers that handle the time-shift for each item
  */
-[@bs.module "rxjs/operators"] external delay: ([@bs.unwrap][`Int(int) | `Date(Js.Date.t)], ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) = "delay";
+[@bs.module "rxjs/operators"]
+external delay:
+  (
+    [@bs.unwrap] [ | `Int(int) | `Date(Js.Date.t)],
+    ~scheduler: Rx_Scheduler.t=?,
+    unit
+  ) =>
+  operator('a, 'a) =
+  "delay";
 
 /**
   Delays the emission of items from the source Observable by a given time span
@@ -269,43 +326,51 @@ external defaultIfEmpty: 'a => operator('a, 'a) = "defaultIfEmpty";
     @return An Observable that delays the emissions of the source Observable by an amount of time specified by the Observable returned by `delayDurationSelector`
  */
 [@bs.module "rxjs/operators"]
-external delayWhen: (
-  ~delayDurationSelector: [@bs.uncurry] (('a, int) => t('b)),
-  ~subscriptionDelay: t('c)=?,
-  unit
-) => operator('a, 'a) = "delayWhen";
+external delayWhen:
+  (
+    ~delayDurationSelector: [@bs.uncurry] (('a, int) => t('b)),
+    ~subscriptionDelay: t('c)=?,
+    unit
+  ) =>
+  operator('a, 'a) =
+  "delayWhen";
 
 /**
   Converts an Observable of Notification objects into the emissions that they represent
  */
 [@bs.module "rxjs/operators"]
-external dematerialize: unit => operator(Rx_Notification.t('a), 'a) = "dematerialize";
+external dematerialize: unit => operator(Rx_Notification.t('a), 'a) =
+  "dematerialize";
 
 [@bs.module "rxjs/operators"]
-external _distinct: (
-  ~keySelector: ([@bs.uncurry] 'a => 'b), 
-  ~flushes: Rx_Observable.Observable.t('f)=?, 
-  unit
-) => operator('a, 'a) = "distinct";
+external _distinct:
+  (
+    ~keySelector: [@bs.uncurry] ('a => 'b),
+    ~flushes: Rx_Observable.Observable.t('f)=?,
+    unit
+  ) =>
+  operator('a, 'a) =
+  "distinct";
 
 /**
   Returns an Observable that emits all items emitted by the source Observable
   that are distinct by comparison from previous items
 
-  If a keySelector function is provided, then it will project each value from the source observable 
-  into a new value that it will check for equality with previously projected values. If a keySelector function is not provided, 
+  If a keySelector function is provided, then it will project each value from the source observable
+  into a new value that it will check for equality with previously projected values. If a keySelector function is not provided,
   it will use each value from the source observable directly with an equality check against previous values
 
     @param keySelector function to select which value you want to check as distinct
     @param flushes Optional Observable for flushing the internal HashSet of the operator
     @return An Observable that emits items from the source Observable with distinct values
- */ 
-let distinct = (~keySelector=v=>v, ~flushes=?, ()) => _distinct(~keySelector, ~flushes?, ());
+ */
+let distinct = (~keySelector=v => v, ~flushes=?, ()) =>
+  _distinct(~keySelector, ~flushes?, ());
 
 [@bs.module "rxjs/operators"]
-external _distinctUntilChanged: (
-  ~compare: ([@bs.uncurry] ('a, 'a) => bool)
-) => operator('a, 'a) = "distinctUntilChanged";
+external _distinctUntilChanged:
+  (~compare: [@bs.uncurry] (('a, 'a) => bool)) => operator('a, 'a) =
+  "distinctUntilChanged";
 
 /**
   Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item.
@@ -313,9 +378,10 @@ external _distinctUntilChanged: (
   If a comparator function is not provided, an equality check(shallow) is used by default.
 
     @param compare Optional comparison function called to test if an item is distinct from the previous item in the source.
-    @return An Observable that emits items from the source Observable with distinct values.    
+    @return An Observable that emits items from the source Observable with distinct values.
  */
-let distinctUntilChanged = (~compare=(lhs, rhs) => lhs === rhs, ()) => _distinctUntilChanged(~compare);
+let distinctUntilChanged = (~compare=(lhs, rhs) => lhs === rhs, ()) =>
+  _distinctUntilChanged(~compare);
 
 /**
   Returns an Observable that emits all items emitted by the source Observable that are distinct by comparison from the previous item
@@ -325,23 +391,25 @@ let distinctUntilChanged = (~compare=(lhs, rhs) => lhs === rhs, ()) => _distinct
   If a comparator function is not provided, an equality check(shallow) is used by default.
  */
 [@bs.module "rxjs/operators"]
-external _distinctUntilKeyChanged: (
-  ~key: string,
-  ~compare: ([@bs.uncurry] ('a, 'a) => bool)
-) => operator('a, 'a) = "distinctUntilKeyChanged";
+external _distinctUntilKeyChanged:
+  (~key: string, ~compare: [@bs.uncurry] (('a, 'a) => bool)) =>
+  operator('a, 'a) =
+  "distinctUntilKeyChanged";
 
-let distinctUntilKeyChanged = (~key, ~compare=(lhs, rhs) => lhs === rhs, ()) => _distinctUntilKeyChanged(~key, ~compare);
+let distinctUntilKeyChanged = (~key, ~compare=(lhs, rhs) => lhs === rhs, ()) =>
+  _distinctUntilKeyChanged(~key, ~compare);
 
 /**
   Emits the single value at the specified `index` in a sequence of emissions
   from the source Observable
 
-    @param index Is the number `i` for the i-th source emission that has happened since the subscription, starting from the number `0`. 
-    @param default The default value returned for missing indices.   
+    @param index Is the number `i` for the i-th source emission that has happened since the subscription, starting from the number `0`.
+    @param default The default value returned for missing indices.
     @return An Observable that emits a single item, if it is found.
  */
 [@bs.module "rxjs/operators"]
-external elementAt: (int, ~default: 'a=?, unit) => operator('a, 'a) = "elementAt";
+external elementAt: (int, ~default: 'a=?, unit) => operator('a, 'a) =
+  "elementAt";
 
 /**
   Returns an Observable that emits the items you specify as arguments after it finishes emitting
@@ -355,18 +423,18 @@ external endWith: array('a) => operator('a, 'a) = "endWith";
 
 /* OPERATOR: every */
 [@bs.module "rxjs/operators"]
-external every: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) = "";
+external every: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) =
+  "every";
 
 /* OPERATOR: exhaust */
 /* No support for exhausting t of array or promises */
 [@bs.module "rxjs/operators"]
-external exhaust: unit => operator(t('a), 'a) = "";
+external exhaust: unit => operator(t('a), 'a) = "exhaust";
 
 /* OPERATOR: exhaustMap */
 [@bs.module "rxjs/operators"]
-external exhaustMap:
-  ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) =
-  "";
+external exhaustMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) =
+  "exhaustMap";
 
 [@bs.module "rxjs/operators"]
 external exhaustMapArray:
@@ -380,7 +448,7 @@ external exhaustMapPromise:
 
 /* OPERATOR: filter */
 [@bs.module "rxjs/operators"]
-external filter: ([@bs.uncurry] ('a => bool)) => operator('a, 'a) = "";
+external filter: ([@bs.uncurry] ('a => bool)) => operator('a, 'a) = "filter";
 
 [@bs.module "rxjs/operators"]
 external filteri: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) =
@@ -390,38 +458,39 @@ external filteri: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) =
 [@bs.module "rxjs/operators"]
 external findIndex:
   ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, int) =
-  "";
+  "findIndex";
 
 /* OPERATOR: isEmpty */
 [@bs.module "rxjs/operators"]
-external isEmpty: unit => operator('a, bool) = "";
+external isEmpty: unit => operator('a, bool) = "isEmpty";
 
 /* OPERATOR: map */
 [@bs.module "rxjs/operators"]
-external map: ([@bs.uncurry] ('a => 'b)) => operator('a, 'b) = "";
+external map: ([@bs.uncurry] ('a => 'b)) => operator('a, 'b) = "map";
 
 [@bs.module "rxjs/operators"]
 external mapi: ([@bs.uncurry] (('a, int) => 'b)) => operator('a, 'b) = "map";
 
 /* OPERATOR: max */
-[@bs.module "rxjs/operators"] external max: unit => operator('a, 'a) = "";
+[@bs.module "rxjs/operators"] external max: unit => operator('a, 'a) = "max";
 
 [@bs.module "rxjs/operators"]
 external maxCustom: ([@bs.uncurry] (('a, 'a) => bool)) => operator('a, 'a) =
   "max";
 
 /* OPERATOR: mapTo */
-[@bs.module "rxjs/operators"] external mapTo: 'b => operator('a, 'b) = "";
+[@bs.module "rxjs/operators"]
+external mapTo: 'b => operator('a, 'b) = "mapTo";
 
 /* OPERATOR: mergeAll */
 [@bs.module "rxjs/operators"]
 external mergeAll: (~concurrent: int=?, unit) => operator(t('a), 'a) =
-  "";
+  "mergeAll";
 
 /* OPERATOR: mergeMap */
 [@bs.module "rxjs/operators"]
 external mergeMap: ([@bs.uncurry] ('a => t('b))) => operator('a, 'b) =
-  "";
+  "mergeMap";
 
 [@bs.module "rxjs/operators"]
 external mergeMapArray: ([@bs.uncurry] ('a => array('b))) => operator('a, 'b) =
@@ -433,9 +502,8 @@ external mergeMapPromise:
   "mergeMap";
 
 [@bs.module "rxjs/operators"]
-external mergeMapTo:
-  (t('b), ~concurrent: int=?, unit) => operator('a, 'b) =
-  "";
+external mergeMapTo: (t('b), ~concurrent: int=?, unit) => operator('a, 'b) =
+  "mergeMapTo";
 
 [@bs.module "rxjs/operators"]
 external mergeMapToPromise:
@@ -443,7 +511,7 @@ external mergeMapToPromise:
   "mergeMapTo";
 
 /* OPERATOR: min */
-[@bs.module "rxjs/operators"] external min: unit => operator('a, 'a) = "";
+[@bs.module "rxjs/operators"] external min: unit => operator('a, 'a) = "min";
 
 [@bs.module "rxjs/operators"]
 external minCustom: ([@bs.uncurry] (('a, 'a) => bool)) => operator('a, 'a) =
@@ -451,17 +519,17 @@ external minCustom: ([@bs.uncurry] (('a, 'a) => bool)) => operator('a, 'a) =
 
 /* OPERATOR: pairwise */
 [@bs.module "rxjs/operators"]
-external pairwise: unit => operator('a, ('a, 'a)) = "";
+external pairwise: unit => operator('a, ('a, 'a)) = "pairwise";
 
 /* OPERATOR: reduce */
 [@bs.module "rxjs/operators"]
 external reduce:
   ([@bs.uncurry] (('acc, 'a, int) => 'acc), 'acc) => operator('a, 'acc) =
-  "";
+  "reduce";
 
 /* OPERATOR: refCount */
 [@bs.module "rxjs/operators"]
-external refCount: unit => operator('a, 'a) = "";
+external refCount: unit => operator('a, 'a) = "refCount";
 
 /* OPERATOR: repeat */
 [@bs.module "rxjs/operators"]
@@ -471,17 +539,16 @@ let repeat = (~count=(-1), stream) => _repeat(~count, (), stream);
 
 /* OPERATOR: retry */
 [@bs.module "rxjs/operators"]
-external retry: (~count: int=?, unit) => operator('a, 'a) = "";
+external retry: (~count: int=?, unit) => operator('a, 'a) = "retry";
 
 /* OPERATOR: retryWhen */
 [@bs.module "rxjs/operators"]
-external retryWhen:
-  (t(Js.Exn.t) => t('b)) => operator('a, 'a) =
-  "";
+external retryWhen: (t(Js.Exn.t) => t('b)) => operator('a, 'a) =
+  "retryWhen";
 
 /* OPERATOR: sample */
 [@bs.module "rxjs/operators"]
-external sample: t('any) => operator('a, 'a) = "";
+external sample: t('any) => operator('a, 'a) = "sample";
 
 /* OPERATOR: sampleTime */
 //TODO:
@@ -493,31 +560,32 @@ external sample: t('any) => operator('a, 'a) = "";
 [@bs.module "rxjs/operators"]
 external scan:
   ([@bs.uncurry] (('acc, 'a, int) => 'acc), 'acc) => operator('a, 'acc) =
-  "";
+  "scan";
 
 /* OPERATOR: share */
-[@bs.module "rxjs/operators"] external share: unit => operator('a, 'a) = "";
+[@bs.module "rxjs/operators"]
+external share: unit => operator('a, 'a) = "share";
 
 /* OPERATOR: skip */
-[@bs.module "rxjs/operators"] external skip: int => operator('a, 'a) = "";
+[@bs.module "rxjs/operators"] external skip: int => operator('a, 'a) = "skip";
 
 /* OPERATOR: skipLast */
-[@bs.module "rxjs/operators"] external skipLast: int => operator('a, 'a) = "";
+[@bs.module "rxjs/operators"]
+external skipLast: int => operator('a, 'a) = "skipLast";
 
 /* OPERATOR: skipUntil */
 [@bs.module "rxjs/operators"]
-external skipUntil: t('any) => operator('a, 'a) = "";
+external skipUntil: t('any) => operator('a, 'a) = "skipUntil";
 
 /* OPERATOR: skipWhile */
 [@bs.module "rxjs/operators"]
 external skipWhile: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) =
-  "";
+  "skipWhile";
 
 /* OPERATOR: switchMap */
 [@bs.module "rxjs/operators"]
-external switchMap:
-  ([@bs.uncurry] ('a => t('b))) => operator('a, 'b) =
-  "";
+external switchMap: ([@bs.uncurry] ('a => t('b))) => operator('a, 'b) =
+  "switchMap";
 
 [@bs.module "rxjs/operators"]
 external switchMapArray:
@@ -530,28 +598,30 @@ external switchMapPromise:
   "switchMap";
 
 /* OPERATOR: take */
-[@bs.module "rxjs/operators"] external take: int => operator('a, 'a) = "";
+[@bs.module "rxjs/operators"] external take: int => operator('a, 'a) = "take";
 
 /* OPERATOR: takeLast */
-[@bs.module "rxjs/operators"] external takeLast: int => operator('a, 'a) = "";
+[@bs.module "rxjs/operators"]
+external takeLast: int => operator('a, 'a) = "takeLast";
 
 /* OPERATOR: takeUntil */
 [@bs.module "rxjs/operators"]
-external takeUntil: t('any) => operator('a, 'a) = "";
+external takeUntil: t('any) => operator('a, 'a) = "takeUntil";
 
 /* OPERATOR: takeWhite */
 [@bs.module "rxjs/operators"]
 external takeWhile:
   ([@bs.uncurry] (('a, int) => bool), ~inclusive: bool=?, unit) =>
   operator('a, 'a) =
-  "";
+  "takeWhile";
 
 /* OPERATOR: tap */
 [@bs.module "rxjs/operators"]
-external tap: ('a => unit) => operator('a, 'a) = "";
+external tap: ('a => unit) => operator('a, 'a) = "tap";
 
 [@bs.module "rxjs/operators"]
-external tapObserver: Rx_Types.Observer.t('a, 'e) => operator('a, 'a) = "tap";
+external tapObserver: Rx_Types.Observer.t('a, 'e) => operator('a, 'a) =
+  "tap";
 
 /* OPERATOR: timeout */
 [@bs.module "rxjs/operators"]
@@ -566,30 +636,21 @@ external withLatestFrom2: t('b) => operator('a, ('a, 'b)) =
   "withLatestFrom";
 
 [@bs.module "rxjs/operators"]
-external withLatestFrom3:
-  (t('b), t('c)) => operator('a, ('a, 'b, 'c)) =
+external withLatestFrom3: (t('b), t('c)) => operator('a, ('a, 'b, 'c)) =
   "withLatestFrom";
 
 [@bs.module "rxjs/operators"]
 external withLatestFrom4:
-  (t('b), t('c), t('d)) =>
-  operator('a, ('a, 'b, 'c, 'd)) =
+  (t('b), t('c), t('d)) => operator('a, ('a, 'b, 'c, 'd)) =
   "withLatestFrom";
 
 [@bs.module "rxjs/operators"]
 external withLatestFrom5:
-  (t('b), t('c), t('d), t('e)) =>
-  operator('a, ('a, 'b, 'c, 'd, 'e)) =
+  (t('b), t('c), t('d), t('e)) => operator('a, ('a, 'b, 'c, 'd, 'e)) =
   "withLatestFrom";
 
 [@bs.module "rxjs/operators"]
 external withLatestFrom6:
-  (
-    t('b),
-    t('c),
-    t('d),
-    t('e),
-    t('f)
-  ) =>
+  (t('b), t('c), t('d), t('e), t('f)) =>
   operator('a, ('a, 'b, 'c, 'd, 'e, 'f)) =
   "withLatestFrom";
