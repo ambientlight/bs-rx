@@ -117,3 +117,8 @@ module Observable = {
     @return An Observable that emits the arguments described above and then completes
  */
 [@bs.module "rxjs"] external of1: 'a => Observable.t('a) = "of";
+
+/**
+  Creates an Observable that emits no items to the Observer and immediately emits a complete notification.
+ */
+[@bs.module "rxjs"][@bs.val] external empty: Observable.t('a) = "EMPTY";

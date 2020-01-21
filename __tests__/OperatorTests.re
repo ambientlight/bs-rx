@@ -360,12 +360,12 @@ describe("Operators", () => {
     let e1 = ts |> hot("--a--b--c--d-", ~values) |> HotObservable.asObservable;
     let expected = "--x--y--z--|";
     let result = e1
-    |> Rx_Operators.map(x => x == "|" 
-        ? Rx_Notification.createComplete() 
-        : Rx_Notification.createNext(x 
+    |> Rx.Operators.map(x => x == "|" 
+        ? Rx.Notification.createComplete() 
+        : Rx.Notification.createNext(x 
           |> Js.String.replace("{", "") 
           |> Js.String.replace("}", "")))
-    |> Rx_Operators.dematerialize();
+    |> Rx.Operators.dematerialize();
     
     ts
     |> expectObservable(result) 
@@ -381,7 +381,7 @@ describe("Operators", () => {
     |> expectObservable(
       e1 
       |> HotObservable.asObservable
-      |> Rx_Operators.distinct())
+      |> Rx.Operators.distinct())
     |> toBeObservable(expected);
 
     ts
@@ -418,7 +418,7 @@ describe("Operators", () => {
     |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx_Operators.distinct(~flushes=e2 |> HotObservable.asObservable, ()))
+      |> Rx.Operators.distinct(~flushes=e2 |> HotObservable.asObservable, ()))
     |> toBeObservable(expected);
 
     ts
@@ -447,7 +447,7 @@ describe("Operators", () => {
     let expected =     "-a--b------a-c-|";
 
     let result = e1
-    |> Rx_Operators.distinctUntilKeyChanged(~key="k", ());
+    |> Rx.Operators.distinctUntilKeyChanged(~key="k", ());
 
     ts
     |> expectObservable(result)
@@ -479,12 +479,80 @@ describe("Operators", () => {
     |> expectObservable(
       e1 
       |> ColdObservable.asObservable
-      |> Rx_Operators.endWith([|"s"|]))
+      |> Rx.Operators.endWith([|"s"|]))
     |> toBeObservable(expected)
 
     ts
     |> expectSubscriptions(e1 |> ColdObservable.subscriptions)
     |> toBeSubscriptions(e1subs)
+  });
+
+  testMarbles("every: should return false if only some of element matches with predicate", ts => {
+    let e1 = ts |> hot("--a--b--c--d--e--|", ~values={"a": 5, "b": 10, "c": 15, "d": 18, "e": 20});
+    let sourceSubs = [|"^----------!      "|];
+    let expected =     "-----------(F|)   ";
+
+    ts
+    |> expectObservable(
+      e1
+      |> HotObservable.asObservable
+      |> Rx_Operators.every((x, _index, _source) => x mod 5 == 0, ()))
+    |> toBeObservable(expected, ~values={"F": false});
+
+    ts
+    |> expectSubscriptions(e1 |> HotObservable.subscriptions)
+    |> toBeSubscriptions(sourceSubs)
+  });
+
+  testMarbles("exhaust: should handle a hot observable of hot observables", ts => {
+    let x = ts |> cold(      "--a---b---c--|               ");
+    let y = ts |> cold(              "---d--e---f---|      ");
+    let z = ts |> cold(                    "---g--h---i---|");
+    let e1 = ts 
+    |> hot(  "------x-------y-----z-------------|", ~values={ "x": x, "y": y, "z": z }) 
+    |> HotObservable.asObservable;
+
+    let expected = "--------a---b---c------g--h---i---|";
+    ts 
+    |> expectObservable(e1 |> Rx.Operators.exhaust()) 
+    |> toBeObservable(expected)
+  });
+
+  testMarbles("exhaustMap: should map-and-flatten each item to an Observable", ts => {
+    let e1 = ts |> hot("--1-----3--5-------|");
+    let e1subs =     [|"^------------------!"|];
+    let e2 = ts |> cold("x-x-x|              ", ~values={"x": 10});
+    let expected = "--x-x-x-y-y-y------|";
+    let values = {"x": 10, "y": 30, "z": 50};
+
+    let result = e1 
+    |> HotObservable.asObservable
+    |> Rx.Operators.exhaustMap(
+      `Observable((x, _idx) => e2 
+        |> ColdObservable.asObservable 
+        |> Rx.Operators.map(i => i * x)));
+
+    ts |> expectObservable(result) |> toBeObservable(expected, ~values);
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
+  });
+
+  testMarbles("expand: should recursively map-and-flatten each item to an Observable", ts => {
+    let e1 = ts |> hot(  "--x----|  ", ~values={"x": 1});
+    let e1subs =       [|"^------!  "|];
+    let e2 =  ts |> cold(  "--c|    ", ~values={"c": 2});
+    let expected =       "--a-b-c-d|";
+    let values = {"a": 1, "b": 2, "c": 4, "d": 8};
+
+    let result = e1
+    |> HotObservable.asObservable
+    |> Rx.Operators.expand(
+      `Observable((x, _idx) => x == 8 
+        ? Rx.empty 
+        : e2 |> ColdObservable.asObservable |> Rx.Operators.map(c => c * x)),
+      ())
+    
+    ts |> expectObservable(result) |> toBeObservable(expected, ~values)
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
   });
 
   ()

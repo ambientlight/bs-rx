@@ -421,30 +421,64 @@ external elementAt: (int, ~default: 'a=?, unit) => operator('a, 'a) =
 [@bs.module "rxjs/operators"] [@bs.variadic]
 external endWith: array('a) => operator('a, 'a) = "endWith";
 
-/* OPERATOR: every */
-[@bs.module "rxjs/operators"]
-external every: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) =
-  "every";
+/**
+  Returns an Observable that emits whether or not every item of the source satisfies the condition specified.
 
-/* OPERATOR: exhaust */
-/* No support for exhausting t of array or promises */
+    @param predicate A function for determining if an item meets a specified condition
+    @param thisArg Optional object to use for `this` in the callback
+    @return An Observable of booleans that determines if all items of the source Observable meet the condition specified
+ */
+[@bs.module "rxjs/operators"]
+external every: ([@bs.uncurry] (('a, int, t('a)) => bool), ~thisArg: 'this=?, unit) => operator('a, 'a) = "every";
+
+/**
+  Converts a higher-order Observable into a first-order Observable by dropping
+  inner Observables while the previous inner Observable has not yet completed.
+
+  `exhaust` ignores every new inner Observable if the previous Observable has
+  not yet completed. Once that one completes, it will accept and flatten the
+  next inner Observable and repeat this process.
+
+    @return An Observable that takes a source of Observables and propagates the first observable exclusively until it completes before subscribing to the next.
+ */
 [@bs.module "rxjs/operators"]
 external exhaust: unit => operator(t('a), 'a) = "exhaust";
 
-/* OPERATOR: exhaustMap */
-[@bs.module "rxjs/operators"]
-external exhaustMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) =
-  "exhaustMap";
+/**
+  Projects each source value to an Observable which is merged in the output
+  Observable only if the previous projected Observable has completed.
 
+    @param project A function that, when applied to an item emitted by the source Observable, returns an Observable or Promise or iterable.
+    @return An Observable containing projected Observables of each item of the source, ignoring projected Observables that start before their preceding Observable has completed.
+ */
 [@bs.module "rxjs/operators"]
-external exhaustMapArray:
-  ([@bs.uncurry] (('a, int) => array('b))) => operator('a, 'b) =
-  "exhaustMap";
+external exhaustMap: (
+  [@bs.unwrap] [
+    | `Observable(('a, int) => t('b))
+    | `Promise(('a, int) => Js.Promise.t('b))
+    | `Array(('a, int) => array('b))
+  ]
+) => operator('a, 'b) = "exhaustMap";
 
+/**
+  Recursively projects each source value to an Observable which is merged in the output Observable.
+
+    @param project A function that, when applied to an item emitted by the source or the output Observable, returns an Observable.
+    @param cuncurrent Maximum number of input Observables being subscribed to concurrently.
+    @param scheduler The `Scheduler` to use for subscribing to each projected inner Observable.
+    @return An Observable that emits the source values and also result of applying the projection function to each value emitted on the output Observable and merging the results of the Observables obtained from this transformation.
+ */
 [@bs.module "rxjs/operators"]
-external exhaustMapPromise:
-  ([@bs.uncurry] (('a, int) => Js.Promise.t('b))) => operator('a, 'b) =
-  "exhaustMap";
+external expand: (
+  [@bs.unwrap] [
+    | `Observable(('a, int) => t('b))
+    | `Promise(('a, int) => Js.Promise.t('b))
+    | `Array(('a, int) => array('b))
+  ],
+  ~concurrent: int=?,
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => operator('a, 'b) = "expand";
 
 /* OPERATOR: filter */
 [@bs.module "rxjs/operators"]
