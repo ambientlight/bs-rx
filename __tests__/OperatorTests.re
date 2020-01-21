@@ -185,6 +185,7 @@ describe("Operators", () => {
   testMarbles("concatMap: should map-and-flatten each item to an Observable", ts => {
     let e1 = ts |> hot( "--1-----3--5-------|");
     //FIXME: in rxjs unsubscribe is in 1st (when spaces between sub unsub) frame - weird
+    //spaces between subcribe unsubscribe frames appears to work there but not here...
     let e1subs =      [|"^------------------!"|];
     let e2 = ts |> cold("x-x-x|              ", ~values={"x": 10}) |> ColdObservable.asObservable;
     let expected =      "--x-x-x-y-y-yz-z-z-|";
@@ -275,11 +276,12 @@ describe("Operators", () => {
     let e1 = ts |> hot("-a--bc--d---|") |> HotObservable.asObservable;
     let expected =     "---a---c--d-|";
 
-    //FIXME: fails
     ts
     |> expectObservable(
       e1
-      |> Rx.Operators.debounceTime(~dueTime=float_of_int(TestScheduler.frameTimeFactor), ~scheduler=ts |> TestScheduler.asScheduler)
+      //FIXME: rxjs spec/operators/debounceTime-spec.ts due time is 20 units
+      // is there different non-default frame duration set on TestScheduler there?
+      |> Rx.Operators.debounceTime(~dueTime=2., ~scheduler=ts |> TestScheduler.asScheduler, ())
     )
     |> toBeObservable(expected)
   });

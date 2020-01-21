@@ -287,7 +287,7 @@ external debounce:
  */
 [@bs.module "rxjs/operators"]
 external debounceTime:
-  (~dueTime: float, ~scheduler: Rx_Scheduler.t) => operator('a, 'a) =
+  (~dueTime: float, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) =
   "debounceTime";
 
 /**

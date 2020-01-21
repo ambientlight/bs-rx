@@ -633,10 +633,10 @@ bs-mocha@^1.0.0:
   dependencies:
     mocha "^6.2.0"
 
-bs-platform@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-5.2.1.tgz#3f76f6d4f4c7255296375a8104c8be332770b691"
-  integrity sha512-3ISP+RBC/NYILiJnphCY0W3RTYpQ11JGa2dBBLVug5fpFZ0qtSaL3ZplD8MyjNeXX2bC7xgrWfgBSn8Tc9om7Q==
+bs-platform@7.0.2-dev.1:
+  version "7.0.2-dev.1"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-7.0.2-dev.1.tgz#9f9bf2daae0bc6ca122bb0446236e7eab8b79bdd"
+  integrity sha512-RuGk0eTIhvtQ8/X3YVISoKX5oIsOpMS/qQHvmnpmLKvwaKVYaTBxVpL8ktjkDkbvvzZoM6Xw93jwqRlQV6IDHQ==
 
 bser@2.1.1:
   version "2.1.1"
@@ -2675,11 +2675,6 @@ realpath-native@^1.1.0:
   dependencies:
     util.promisify "^1.0.0"
 
-reason-cli@^3.3.3-macos-1:
-  version "3.3.3-macos-1"
-  resolved "https://registry.yarnpkg.com/reason-cli/-/reason-cli-3.3.3-macos-1.tgz#b847a614144b3c68d8dbf4972df6bb93bc857032"
-  integrity sha512-YdX54+bG2qjwlKYpgttfdhUIpKvkxBMY4x530GOyvSNNMU7pSzuc2H5x6Bt8pxKOyq0Kz/NQk/TMXT5AITdFcg==
-
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/regex-not/-/regex-not-1.0.2.tgz#1f4ece27e00b0b65e0247a6810e6a85d83a5752c"
@@ -2801,10 +2796,10 @@ rsvp@^4.8.4:
   resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-4.8.5.tgz#c8f155311d167f68f21e168df71ec5b083113734"
   integrity sha512-nfMOlASu9OnRJo1mbEk2cz0D56a1MBNrJ7orjRZQG10XDyuvwksKbuXNp6qa+kbn839HwjwhBzhFmdsaEAfauA==
 
-rxjs@^7.0.0-alpha.0:
-  version "7.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.0.0-alpha.0.tgz#8123daf3a9fa994536ca0089dbc448f7cde98403"
-  integrity sha512-dX5CjwuWIuo4uHI5u1ou8w/2qMZyt025qiLoiYgSoYKiLS4czmJhSlptXGUi/2KAVJlHpMHiKNyhnVODg68xVw==
+rxjs@^7.0.0-alpha.1:
+  version "7.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.0.0-alpha.1.tgz#7af41b76bfe15fe002db3c1d484b92ea0ef89b39"
+  integrity sha512-wQB1ZRQysSXSXzPHhhsw+OaVmNnVSylgR3UkUvVEfexkDmfHEs9bpDz1oiMfIG9JL1hPXL1ABtrL0H6XhstbWg==
   dependencies:
     tslib "^1.9.0"
 
