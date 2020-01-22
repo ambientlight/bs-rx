@@ -195,7 +195,7 @@ describe("Operators", () => {
     |> HotObservable.asObservable
     |> Rx.Operators.concatMap((x, _idx) => 
       e2 
-      |> Rx.Operators.map(i => i * int_of_string(x)
+      |> Rx.Operators.map((i, _idx) => i * int_of_string(x)
     ));
     
     ts
@@ -360,7 +360,7 @@ describe("Operators", () => {
     let e1 = ts |> hot("--a--b--c--d-", ~values) |> HotObservable.asObservable;
     let expected = "--x--y--z--|";
     let result = e1
-    |> Rx.Operators.map(x => x == "|" 
+    |> Rx.Operators.map((x, _idx) => x == "|" 
         ? Rx.Notification.createComplete() 
         : Rx.Notification.createNext(x 
           |> Js.String.replace("{", "") 
@@ -530,7 +530,7 @@ describe("Operators", () => {
     |> Rx.Operators.exhaustMap(
       `Observable((x, _idx) => e2 
         |> ColdObservable.asObservable 
-        |> Rx.Operators.map(i => i * x)));
+        |> Rx.Operators.map((i, _idx) => i * x)));
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
@@ -548,7 +548,7 @@ describe("Operators", () => {
     |> Rx.Operators.expand(
       `Observable((x, _idx) => x == 8 
         ? Rx.empty 
-        : e2 |> ColdObservable.asObservable |> Rx.Operators.map(c => c * x)),
+        : e2 |> ColdObservable.asObservable |> Rx.Operators.map((c, _idx) => c * x)),
       ())
     
     ts |> expectObservable(result) |> toBeObservable(expected, ~values)
@@ -636,12 +636,142 @@ describe("Operators", () => {
     ts |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx.Operators.first(~predicate=(_x, _idx, _src) => true, ()))
+      |> Rx.Operators.first(()))
     |> toBeObservable(expected);
 
     ts 
     |> expectSubscriptions(e1 |> HotObservable.subscriptions)
     |> toBeSubscriptions(sub);
+  });
+
+  testMarbles("groupBy: should group numbers by odd/even", ts => {
+    let e1 = ts |> hot("--1---2---3---4---5---|") |> HotObservable.asObservable;
+    let expected =     "--x---y---------------|";
+    let x = ts |> cold(  "1-------3-------5---|");
+    let y = ts |> cold(      "2-------4-------|");
+    let values = { "x": x, "y": y };
+
+    let source = e1 
+    |> Rx.Operators.groupBy(x => (int_of_string(x) mod 2) |> string_of_int);
+
+    ts
+    |> expectObservable(source)
+    |> toBeObservable(expected, ~values)
+  });
+
+  testMarblesWithPreset(
+    ~name="ignoreElements: should ignore all the elements of the source",
+    ~hot=     "--a--b--c--d--|",
+    ~expected="--------------|",
+    ~subs=  [|"^-------------!"|],
+    ~operator=Rx.Operators.ignoreElements(()),
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="isEmpty: should return true if source is empty",
+    ~hot=     "-----|",
+    ~expected="-----(T|)",
+    ~subs=  [|"^----!"|],
+    ~operator=Rx.Operators.isEmpty(()),
+    ~values={"T": true},
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="last: should take the first value of an observable with many values",
+    ~hot=     "--a----b--c--|",
+    ~expected="-------------(c|)",
+    ~subs=  [|"^------------!"|],
+    ~operator=Rx.Operators.last(()),
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="map: should map multiple values",
+    ~hot=     "--1--2--3--|",
+    ~expected="--x--y--z--|",
+    ~subs=  [|"^----------!"|],
+    ~operator=Rx.Operators.map((x, _idx) => 10 * x),
+    ~values={"x": 10, "y": 20, "z": 30},
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="mapTo: should map multiple values",
+    ~hot=     "--1--2--3--|",
+    ~expected="--a--a--a--|",
+    ~subs=  [|"^----------!"|],
+    ~operator=Rx.Operators.mapTo("a"),
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="materialize: should materialize a happy stream",
+    ~hot=     "--a--b--c--|",
+    ~expected="--w--x--y--(z|)",
+    ~subs=  [|"^----------!"|],
+    ~operator=Rx.Operators.materialize(),
+    ~values={
+      "w": Rx.Notification.createNext("a"),
+      "x": Rx.Notification.createNext("b"),
+      "y": Rx.Notification.createNext("c"),
+      "z": Rx.Notification.createComplete()
+    },
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="max: should find the max of values of an observable",
+    ~hot=     "--a--b--c--|",
+    ~hotValues=_ts=>{ "a": 42, "b": -1, "c": 3 },
+    ~expected="-----------(x|)",
+    ~subs=  [|"^----------!"|],
+    ~operator=Rx.Operators.max(),
+    ~values={"x": 42},
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="maxWithPredicate: should handle a constant predicate on observable that throws",
+    ~hot=     "-a-^-b--c--d-|",
+    ~expected="----------(w|)",
+    ~subs=  [|"^---------!"|],
+    ~operator=Rx.Operators.maxWithComparer((lhs, rhs) => lhs > rhs ? -1. : 1.),
+    ~values={"w": "b"},
+    ()
+  );
+
+  testMarblesWithPreset(
+    ~name="mergeAll: should handle merging a hot observable of observables",
+    ~hot="--x--y--|         ",
+    ~hotValues=ts=>{
+      "x": ts |> cold("a---b---c---|   "),
+      "y": ts |> cold("d---e---f---|")
+    },
+    ~expected="--a--db--ec--f---|",
+    ~subs= [|"^-------!---------"|],
+    ~operator=Rx.Operators.mergeAll(),
+    ()
+  );
+
+  testMarbles("mergeMap: should map-and-flatten each item to an Observable", ts => {
+    let e1 = ts |> hot("--1-----3--5-------|");
+    let e1subs =     [|"^------------------!"|];
+    let e2 = ts |> cold("x-x-x|              ", ~values={"x": 10});
+    let expected = "--x-x-x-y-yzyz-z---|";
+    let values = {"x": 10, "y": 30, "z": 50};
+
+    let result = e1 
+    |> HotObservable.asObservable
+    |> Rx.Operators.mergeMap(`Observable((x, _idx) => 
+      e2 
+      |> ColdObservable.asObservable
+      |> Rx.Operators.map((i, _idx) => i * x)
+    ), ());
+
+    ts |> expectObservable(result) |> toBeObservable(expected, ~values);
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs);
   });
 
   ()

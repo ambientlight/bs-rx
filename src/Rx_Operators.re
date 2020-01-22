@@ -231,8 +231,8 @@ external concatMapTo: t('a) => operator('b, 'a) = "concatMapTo";
 external _count:
   (
     ~predicate: [@bs.uncurry] (
-                  (~value: 'a, ~index: int, ~source: t('a)) => bool
-                )
+                (~value: 'a, ~index: int, ~source: t('a)) => bool
+              )
   ) =>
   operator('a, int) =
   "count";
@@ -515,6 +515,13 @@ external find: ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, 'a) = 
 [@bs.module "rxjs/operators"]
 external findIndex: ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, int) = "findIndex";
 
+[@bs.module "rxjs/operators"]
+external _first: (
+  ~predicate: [@bs.uncurry](('a, int, t('a)) => bool),
+  ~defaultValue: 'b=?, 
+  unit
+) => operator('a, 'b) = "first";
+
 /**
   Emits only the first value (or the first value that meets some condition) emitted by the source Observable.
 
@@ -522,53 +529,134 @@ external findIndex: ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, i
     @param The default value emitted in case no valid value was found on the source.
     @return An Observable of the first item that matches the condition
  */
-[@bs.module "rxjs/operators"]
-external first: (
-  ~predicate: [@bs.uncurry](('a, int, t('a)) => bool),
-  ~defaultValue: 'b=?, 
-  unit
-) => operator('a, 'b) = "first";
+let first = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?, ()) => _first(~predicate, ~defaultValue?, ());
 
-/* OPERATOR: isEmpty */
+/**
+  Groups the items emitted by an Observable according to a specified criterion,
+  and emits these grouped items as `GroupedObservables`, one per group.
+
+  When the Observable emits an item, a key is computed for this item with the keySelector function.
+  If a GroupedObservable for this key exists, this roupedObservable emits. Elsewhere, a new GroupedObservable for this key is created and emits.
+
+    @param keySelector A function that extracts the key for each item.
+    @param elementSelector A function that extracts the return element for each item.
+    @param durationSelectorA function that returns an Observable to determine how long each group should exist.
+    @return An Observable that emits GroupedObservables, each of which corresponds to a unique key value and each of which emits those items from the source Observable that share that key
+ */
+[@bs.module "rxjs/operators"]
+external groupBy: (
+  ('a) => string,
+  //FIXME: groupBy won't like the next set as undefined when applied, those won't work with default values, so seperate functions are needed
+  //~elementSelector: [@bs.uncurry]('a => 'b)=?,
+  //~durationSelector: [@bs.uncurry](t('b) => t('c))=?,
+  //~subjectSelector: [@bs.uncurry](unit => Rx_Subject.t('b))=?,
+  //unit
+) => operator('a, t('b)) = "groupBy";
+
+/**
+  Ignores all items emitted by the source Observable and only passes calls of `complete` or `error`.
+
+    @return An empty Observable that only calls `complete` or `error`, based on which one is called by the source Observable.
+ */
+[@bs.module "rxjs/operators"]
+external ignoreElements: unit => operator('a, 'a) = "ignoreElements";
+
+/**
+   Emits `false` if the input Observable emits any values, or emits `true` if the input Observable completes 
+   without emitting any values
+
+    @return An Observable of a boolean value indicating whether observable was empty or not.
+ */
 [@bs.module "rxjs/operators"]
 external isEmpty: unit => operator('a, bool) = "isEmpty";
 
-/* OPERATOR: map */
 [@bs.module "rxjs/operators"]
-external map: ([@bs.uncurry] ('a => 'b)) => operator('a, 'b) = "map";
+external _last: (
+  ~predicate: [@bs.uncurry](('a, int, t('a)) => bool),
+  ~defaultValue: 'b=?, 
+  unit
+) => operator('a, 'b) = "last";
 
+/**
+  Emits only the last value (or the last value that meets some condition) emitted by the source Observable.
+
+    @param predicate An optional function called with each item to test for condition matching.
+    @param The default value emitted in case no valid value was found on the source.
+    @return An Observable of the last item that matches the condition
+ */
+let last = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?, ()) => _last(~predicate, ~defaultValue?, ());
+
+/**
+  Applies a given `project` function to each value emitted by the source Observable
+  and emits the resulting values as an Observable.
+
+    @param project The function to apply to each `value` emitted by the source Observable. The `index` parameter is the number `i` for the i-th emission that has happened since the subscription, starting from the number `0`.
+    @return An Observable that emits the values from the source Observable transformed by the given `project` function.
+ */
 [@bs.module "rxjs/operators"]
-external mapi: ([@bs.uncurry] (('a, int) => 'b)) => operator('a, 'b) = "map";
+external map: ([@bs.uncurry] (('a, int) => 'b)) => operator('a, 'b) = "map";
 
-/* OPERATOR: max */
-[@bs.module "rxjs/operators"] external max: unit => operator('a, 'a) = "max";
-
-[@bs.module "rxjs/operators"]
-external maxCustom: ([@bs.uncurry] (('a, 'a) => bool)) => operator('a, 'a) =
-  "max";
-
-/* OPERATOR: mapTo */
+/**
+  Emits the given constant value on the output Observable every time the source Observable emits a value.
+  
+    @param value The value to map each source value to.
+    @return An Observable that emits the given value every time the source Observable emits something.
+ */
 [@bs.module "rxjs/operators"]
 external mapTo: 'b => operator('a, 'b) = "mapTo";
 
-/* OPERATOR: mergeAll */
-[@bs.module "rxjs/operators"]
-external mergeAll: (~concurrent: int=?, unit) => operator(t('a), 'a) =
-  "mergeAll";
+/**
+  Represents all of the notifications from the source Observable as `next`
+  emissions marked with their original types within Notification objects.
 
-/* OPERATOR: mergeMap */
+    @return An Observable that emits objects that wrap the original emissions from the source Observable with metadata.
+ */
 [@bs.module "rxjs/operators"]
-external mergeMap: ([@bs.uncurry] ('a => t('b))) => operator('a, 'b) =
-  "mergeMap";
+external materialize: unit => operator('a, Rx_Notification.t('a)) = "materialize";
 
-[@bs.module "rxjs/operators"]
-external mergeMapArray: ([@bs.uncurry] ('a => array('b))) => operator('a, 'b) =
-  "mergeMap";
+/**
+  The Max operator operates on an Observable that emits numbers (or items that can be compared with a provided function)and when source Observable completes it emits a single item: the item with the largest value.
 
+    @return An Observable that emits item with the largest value.
+ */
+[@bs.module "rxjs/operators"] external max: unit => operator('a, 'a) = "max";
+
+/**
+  The Max operator operates on an Observable that emits numbers (or items that can be compared with a provided function)and when source Observable completes it emits a single item: the item with the largest value.
+
+    @param Optional comparer function that it will use instead of its default to compare the value of two items.
+    @return An Observable that emits item with the largest value.
+ */
 [@bs.module "rxjs/operators"]
-external mergeMapPromise:
-  ([@bs.uncurry] ('a => Js.Promise.t('b))) => operator('a, 'b) =
-  "mergeMap";
+external maxWithComparer: ([@bs.uncurry] (('a, 'a) => float)) => operator('a, 'a) = "max";
+
+/**
+  Converts a higher-order Observable into a first-order Observable which
+  concurrently delivers all values that are emitted on the inner Observables.
+
+    @param Maximum number of inner Observables being subscribed to concurrently.
+    @return {Observable} An Observable that emits values coming from all the inner Observables emitted by the source Observable.
+ */
+[@bs.module "rxjs/operators"]
+external mergeAll: (~concurrent: int=?, unit) => operator(t('a), 'a) = "mergeAll";
+
+/**
+  Projects each source value to an Observable which is merged in the output Observable.
+
+    @param project A function that, when applied to an item emitted by the source Observable, returns an Observable.
+    @param Maximum number of input Observables being subscribed to concurrently.
+    @return An Observable that emits the result of applying the projection function (and the optional deprecated `resultSelector`) to each item emitted by the source Observable and merging the results of the Observables obtained from this transformation.
+ */
+[@bs.module "rxjs/operators"]
+external mergeMap: (
+  [@bs.unwrap] [
+    | `Observable(('a, int) => t('b))
+    | `Promise(('a, int) => Js.Promise.t('b))
+    | `Array(('a, int) => array('b))
+  ],
+  ~concurrent: int=?,
+  unit
+) => operator('a, 'b) = "mergeMap";
 
 [@bs.module "rxjs/operators"]
 external mergeMapTo: (t('b), ~concurrent: int=?, unit) => operator('a, 'b) =
