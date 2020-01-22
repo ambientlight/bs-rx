@@ -496,7 +496,7 @@ describe("Operators", () => {
     |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx_Operators.every((x, _index, _source) => x mod 5 == 0, ()))
+      |> Rx_Operators.every((x, _index, _source) => x mod 5 == 0))
     |> toBeObservable(expected, ~values={"F": false});
 
     ts
@@ -553,6 +553,95 @@ describe("Operators", () => {
     
     ts |> expectObservable(result) |> toBeObservable(expected, ~values)
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
+  });
+
+  testMarbles("filter: should filter out even values", ts => {
+    let source = ts |> hot("--0--1--2--3--4--|");
+    let subs =           [|"^----------------!"|];
+    let expected =         "-----1-----3-----|";
+
+    ts |> expectObservable(
+      source 
+      |> HotObservable.asObservable
+      |> Rx.Operators.filter((x, _idx) => x mod 2 == 1))
+    |> toBeObservable(expected);
+    ts 
+    |> expectSubscriptions(source |> HotObservable.subscriptions)
+    |> toBeSubscriptions(subs) 
+  });
+
+  test("finalize: should handle basic hot observable", () => {
+    open Expect;
+
+    let ts = create(~assertDeepEqual=BsMocha.Assert.deep_equal);
+    ts |> run(_r => {
+      let executed = ref(false);
+      let s1 = ts |> hot( "--a--b--c--|");
+      let subs =       [| "^----------!"|];
+      let expected =      "--a--b--c--|";
+
+      let result = s1
+      |> HotObservable.asObservable
+      |> Rx.Operators.finalize(() => { executed := true });
+
+      ts |> expectObservable(result) |> toBeObservable(expected)
+      ts |> expectSubscriptions(s1 |> HotObservable.subscriptions) |> toBeSubscriptions(subs);
+
+      // manually flush so `finalize()` has chance to execute before the test is over.
+      ts |> flush;
+      expect(executed^) 
+    })
+    |> toBe(true)
+  });
+
+  testMarbles("find: should return matching element from source emits single element", ts => {
+    let values = {"a": 3, "b": 9, "c": 15, "d": 20};
+    let source = ts |> hot("---a--b--c--d---|", ~values);
+    let subs =           [|"^--------!       "|];
+    let expected =         "---------(c|)    ";
+
+    ts |> expectObservable(
+      source 
+      |> HotObservable.asObservable
+      |> Rx.Operators.find((x, _idx, _src) => x mod 5 == 0))
+    |> toBeObservable(expected, ~values);
+
+    ts 
+    |> expectSubscriptions(source |> HotObservable.subscriptions) 
+    |> toBeSubscriptions(subs)
+  });
+
+  testMarbles("findIndex: should return matching element from source emits single element", ts => {
+    let values = {"a": 3, "b": 9, "c": 15, "d": 20};
+    let source = ts |> hot("---a--b--c--d---|", ~values);
+    let subs =           [|"^--------!       "|];
+    let expected =         "---------(x|)    ";
+
+    ts |> expectObservable(
+      source 
+      |> HotObservable.asObservable
+      |> Rx.Operators.findIndex((x, _idx, _src) => x mod 5 == 0))
+    |> toBeObservable(expected, ~values={"x": 2});
+
+    ts 
+    |> expectSubscriptions(source |> HotObservable.subscriptions) 
+    |> toBeSubscriptions(subs)
+  });
+
+  testMarbles("first: should take the first value of an observable with many values", ts => {
+    let e1 = ts |> hot("-----a--b--c---d---|");
+    let expected =     "-----(a|)           ";
+    let sub =        [|"^----!              "|];
+
+    ts |> expectObservable(
+      e1
+      |> HotObservable.asObservable
+      |> Rx.Operators.first(~predicate=(_x, _idx, _src) => true, ()))
+    |> toBeObservable(expected);
+
+    ts 
+    |> expectSubscriptions(e1 |> HotObservable.subscriptions)
+    |> toBeSubscriptions(sub);
   });
 
   ()

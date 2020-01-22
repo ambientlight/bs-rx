@@ -425,11 +425,10 @@ external endWith: array('a) => operator('a, 'a) = "endWith";
   Returns an Observable that emits whether or not every item of the source satisfies the condition specified.
 
     @param predicate A function for determining if an item meets a specified condition
-    @param thisArg Optional object to use for `this` in the callback
     @return An Observable of booleans that determines if all items of the source Observable meet the condition specified
  */
 [@bs.module "rxjs/operators"]
-external every: ([@bs.uncurry] (('a, int, t('a)) => bool), ~thisArg: 'this=?, unit) => operator('a, 'a) = "every";
+external every: ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, 'a) = "every";
 
 /**
   Converts a higher-order Observable into a first-order Observable by dropping
@@ -480,19 +479,55 @@ external expand: (
   unit
 ) => operator('a, 'b) = "expand";
 
-/* OPERATOR: filter */
-[@bs.module "rxjs/operators"]
-external filter: ([@bs.uncurry] ('a => bool)) => operator('a, 'a) = "filter";
+/**
+  Filter items emitted by the source Observable by only emitting those that satisfy a specified predicate
 
+    @param predicate A function that evaluates each value emitted by the source Observable.
+ */
 [@bs.module "rxjs/operators"]
-external filteri: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) =
-  "filter";
+external filter: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) = "filter";
 
-/* OPERATOR: findIndex */
+/**
+  Returns an Observable that mirrors the source Observable, but will call a specified function when
+  the source terminates on complete or error.
+
+    @param callback Function to be called when source terminates.
+    @return An Observable that mirrors the source, but will call the specified function on termination.
+ */
 [@bs.module "rxjs/operators"]
-external findIndex:
-  ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, int) =
-  "findIndex";
+external finalize: ([@bs.uncurry] (unit => unit)) => operator('a, 'a) = "finalize";
+
+/**
+  Emits only the first value emitted by the source Observable that meets some condition.
+
+    @param predicate A function called with each item to test for condition matching.
+    @return An Observable of the first item that matches the condition
+ */
+[@bs.module "rxjs/operators"]
+external find: ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, 'a) = "find";
+
+/**
+  Emits only the index of the first value emitted by the source Observable that meets some condition.
+
+    @param predicate A function called with each item to test for condition matching
+    @return An Observable of the index of the first item that matches the condition.
+ */
+[@bs.module "rxjs/operators"]
+external findIndex: ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, int) = "findIndex";
+
+/**
+  Emits only the first value (or the first value that meets some condition) emitted by the source Observable.
+
+    @param predicate An optional function called with each item to test for condition matching.
+    @param The default value emitted in case no valid value was found on the source.
+    @return An Observable of the first item that matches the condition
+ */
+[@bs.module "rxjs/operators"]
+external first: (
+  ~predicate: [@bs.uncurry](('a, int, t('a)) => bool),
+  ~defaultValue: 'b=?, 
+  unit
+) => operator('a, 'b) = "first";
 
 /* OPERATOR: isEmpty */
 [@bs.module "rxjs/operators"]
