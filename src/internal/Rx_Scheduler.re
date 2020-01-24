@@ -14,7 +14,7 @@ module Impl = (T: {type t;}) => {
     @param state Some contextual data that the `work` function uses when called by the Scheduler.
     @return A subscription in order to be able to unsubscribe the scheduled work.
    */
-  [@bs.send.pipe: T.t] external schedule: (~work: ([@bs.uncurry] 'a => unit), ~delay: float, ~state: 'a=?) => Rx_Subscription.t = "schedule"
+  [@bs.send.pipe: T.t] external schedule: (~work: ([@bs.uncurry] 'a => unit), ~delay: float, ~state: 'a=?) => Rx_Subscription.t = "schedule";
 }
 
 include Impl({ type nonrec t = t; });

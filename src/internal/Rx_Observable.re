@@ -12,7 +12,7 @@ module Observable = {
       call: (Rx_Subscriber.t('a), T.t('a)) => teardown
     } as 't);
 
-  external asObservable : T.t('a) => observableT('a) = "%identity";
+    external asObservable : T.t('a) => observableT('a) = "%identity";
 
     // NOTE: comment blocks are unpadded back for the cleaner vscode comments hightlighting on hover
 

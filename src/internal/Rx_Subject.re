@@ -14,6 +14,9 @@ module Impl = (T: { type t('a); }) => {
   [@bs.get] external thrownError: T.t('a) => Js.Nullable.t('e) = "thrownError";
   [@bs.set] external setThrownError: (T.t('a), Js.Nullable.t('e)) => unit = "thrownError";
 
+  [@bs.module "rxjs"] [@bs.new]
+  external create: unit => T.t('a) = "Subject";
+
   /**
   The {@link Observer} callback to receive notifications of type `next` from
   the Observable, with a value. The Observable may call this method 0 or more

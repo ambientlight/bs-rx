@@ -12,7 +12,7 @@ let testMarbles = (name, callback) => test(name, () => {
   |> toBe(true)
 });
 
-let testMarblesWithPreset = (
+let testMarblesWithHotPreset = (
   ~name,
   ~hot as _hot,
   ~expected,
@@ -32,6 +32,30 @@ let testMarblesWithPreset = (
 
     ts 
     |> expectSubscriptions(e1 |> HotObservable.subscriptions)
+    |> toBeSubscriptions(subs);
+  })
+}
+
+let testMarblesWithColdPreset = (
+  ~name,
+  ~cold as _cold,
+  ~expected,
+  ~subs,
+  ~operator,
+  ~values=?,
+  ~coldValues=?,
+  ()
+) => {
+  testMarbles(name, ts => {
+    let e1 = ts |> cold(_cold, ~values=?(coldValues |. Belt.Option.map(gen => gen(ts))));
+    ts |> expectObservable(
+      e1
+      |> ColdObservable.asObservable
+      |> operator)
+    |> toBeObservable(expected, ~values?);
+
+    ts 
+    |> expectSubscriptions(e1 |> ColdObservable.subscriptions)
     |> toBeSubscriptions(subs);
   })
 }

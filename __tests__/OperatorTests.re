@@ -193,10 +193,10 @@ describe("Operators", () => {
 
     let result = e1 
     |> HotObservable.asObservable
-    |> Rx.Operators.concatMap((x, _idx) => 
+    |> Rx.Operators.concatMap(`Observable((x, _idx) => 
       e2 
       |> Rx.Operators.map((i, _idx) => i * int_of_string(x)
-    ));
+    )));
     
     ts
     |> expectObservable(result)
@@ -216,7 +216,7 @@ describe("Operators", () => {
 
     let result = e1
     |> HotObservable.asObservable
-    |> Rx.Operators.concatMapTo(e2);
+    |> Rx.Operators.concatMapTo(`Observable(e2));
 
     ts
     |> expectObservable(result)
@@ -659,7 +659,7 @@ describe("Operators", () => {
     |> toBeObservable(expected, ~values)
   });
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="ignoreElements: should ignore all the elements of the source",
     ~hot=     "--a--b--c--d--|",
     ~expected="--------------|",
@@ -668,7 +668,7 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="isEmpty: should return true if source is empty",
     ~hot=     "-----|",
     ~expected="-----(T|)",
@@ -678,7 +678,7 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="last: should take the first value of an observable with many values",
     ~hot=     "--a----b--c--|",
     ~expected="-------------(c|)",
@@ -687,7 +687,7 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="map: should map multiple values",
     ~hot=     "--1--2--3--|",
     ~expected="--x--y--z--|",
@@ -697,7 +697,7 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="mapTo: should map multiple values",
     ~hot=     "--1--2--3--|",
     ~expected="--a--a--a--|",
@@ -706,7 +706,7 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="materialize: should materialize a happy stream",
     ~hot=     "--a--b--c--|",
     ~expected="--w--x--y--(z|)",
@@ -721,7 +721,7 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="max: should find the max of values of an observable",
     ~hot=     "--a--b--c--|",
     ~hotValues=_ts=>{ "a": 42, "b": -1, "c": 3 },
@@ -732,8 +732,8 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
-    ~name="maxWithPredicate: should handle a constant predicate on observable that throws",
+  testMarblesWithHotPreset(
+    ~name="maxWithPredicate: should handle a letant predicate on observable that throws",
     ~hot=     "-a-^-b--c--d-|",
     ~expected="----------(w|)",
     ~subs=  [|"^---------!"|],
@@ -742,7 +742,7 @@ describe("Operators", () => {
     ()
   );
 
-  testMarblesWithPreset(
+  testMarblesWithHotPreset(
     ~name="mergeAll: should handle merging a hot observable of observables",
     ~hot="--x--y--|         ",
     ~hotValues=ts=>{
@@ -773,6 +773,454 @@ describe("Operators", () => {
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs);
   });
+
+  testMarbles("mergeMapTo: should map-and-flatten each item to an Observable", ts => {
+    let e1 = ts |> hot("--1-----3--5-------|");
+    let e1subs = [|"^------------------!"|];
+    let e2 = ts |> cold("x-x-x|              ", ~values={"x": 10});
+    let expected = "--x-x-x-x-xxxx-x---|";
+
+    let result = e1 
+    |> HotObservable.asObservable
+    |> Rx.Operators.mergeMapTo(`Observable(e2|>ColdObservable.asObservable), ());
+
+    ts |> expectObservable(result) |> toBeObservable(expected, ~values={"x": 10});
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
+  });
+
+  testMarblesWithHotPreset(
+    ~name="mergeScan: should mergeScan things",
+    ~hot="--a--^--b--c--d--e--f--g--|",
+    ~expected="---u--v--w--x--y--z--|",
+    ~subs=  [|"^--------------------!"|],
+    ~operator=Rx.Operators.mergeScan(`Observable((acc, x, _idx) => Rx.of1(Array.concat([acc, [|x|]]))), ~seed=[||], ()),
+    ~values={
+      "u": [|"b"|],
+      "v": [|"b", "c"|],
+      "w": [|"b", "c", "d"|],
+      "x": [|"b", "c", "d", "e"|],
+      "y": [|"b", "c", "d", "e", "f"|],
+      "z": [|"b", "c", "d", "e", "f", "g"|]
+    },
+    ()
+  );
+
+  testMarblesWithHotPreset(
+    ~name="min: should find the min of values of an observable",
+    ~hot=     "--a--b--c--|",
+    ~hotValues=_ts=>{ "a": 42, "b": -1, "c": 3 },
+    ~expected="-----------(x|)",
+    ~subs=  [|"^----------!"|],
+    ~operator=Rx.Operators.min(),
+    ~values={"x": -1},
+    ()
+  );
+
+  testMarblesWithHotPreset(
+    ~name="minWithPredicate: should handle a letant predicate on observable that throws",
+    ~hot=     "-a-^-b--c--d-|",
+    ~expected="----------(w|)",
+    ~subs=  [|"^---------!"|],
+    ~operator=Rx.Operators.minWithComparer((lhs, rhs) => lhs > rhs ? -1. : 1.),
+    ~values={"w": "d"},
+    ()
+  );
+
+  testMarbles("multicast: should mirror a simple source Observable", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let multicasted = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.multicast(`SubjectFactory(() => Rx.Subject.create()), ());
+    let expected =    "--1-2---3-4--5-|";
+
+    ts |> expectObservable(multicasted |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+
+    multicasted |> Rx.ConnectableObservable.connect;
+  });
+
+  testMarbles("observeOn: should observe on specified scheduler", ts => {
+    let e1 = ts |> hot("--a--b--|");
+    let expected =     "--a--b--|";
+    let sub =        [|"^-------!"|];
+
+    ts |> expectObservable(
+      e1 
+      |> HotObservable.asObservable
+      |> Rx.Operators.observeOn(ts |> TestScheduler.asScheduler, ())) 
+    |> toBeObservable(expected);
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(sub);
+  });
+
+  testMarbles("onErrorResumeNext: should continue observable sequence with next observable", ts => {
+    let source = ts |> hot("--a--b--#");
+    let next = ts |> cold( "        --c--d--|") |> ColdObservable.asObservable;
+    let subs =           [|"^-------!"|];
+    let expected =         "--a--b----c--d--|";
+
+    ts |> expectObservable(
+      source
+      |> HotObservable.asObservable
+      |> Rx.Operators.onErrorResumeNext(`Observable([|next|]))) 
+    |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> HotObservable.subscriptions) |> toBeSubscriptions(subs);
+  });
+
+  testMarblesWithHotPreset(
+    ~name="pairwise: should group consecutive emissions as arrays of two",
+    ~hot=     "--a--^--b--c--d--e--f--g--|",
+    ~expected=     "------v--w--x--y--z--|",
+    ~subs=       [|"^--------------------!"|],
+    ~operator=Rx.Operators.pairwise(),
+    ~values={
+      "v": [|"b", "c"|],
+      "w": [|"c", "d"|],
+      "x": [|"d", "e"|],
+      "y": [|"e", "f"|],
+      "z": [|"f", "g"|]
+    },
+    ()
+  );
+
+  testMarbles("partition: 'should partition an observable of integers into even and odd", ts => {
+    let e1 = ts |> hot("--1-2---3------4--5---6--|");
+    let e1subs =     [|"^------------------------!", 
+                       "^------------------------!"|];
+    let expected =   [|"--1-----3---------5------|",
+                       "----2----------4------6--|"|];
+
+    let (fst, snd) = e1
+    |> HotObservable.asObservable
+    |> Rx.Operators.partition((x, _idx) => x mod 2 == 1);
+
+    ts |> expectObservable(fst) |> toBeObservable(expected[0]);
+    ts |> expectObservable(snd) |> toBeObservable(expected[1]);
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
+  });
+
+  testMarbles("publish: should mirror a simple source Observable", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let published = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.publish();
+    let expected =    "--1-2---3-4--5-|";
+
+    ts |> expectObservable(published |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+
+    published |> Rx.ConnectableObservable.connect;
+  });
+
+  testMarbles("publishBehavior: should mirror a simple source Observable", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let published = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.publishBehavior(0);
+    let expected =    "0-1-2---3-4--5-|";
+
+    ts |> expectObservable(published |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+
+    published |> Rx.ConnectableObservable.connect;
+  });
+
+  testMarbles("publishLast: should emit last notification of a simple source Observable", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let published = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.publishLast();
+    let expected =          "---------------(5|)";
+
+    ts |> expectObservable(published |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+
+    published |> Rx.ConnectableObservable.connect;
+  });
+
+  testMarbles("publishReplay: should mirror a simple source Observable", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let published = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.publishReplay(~bufferSize=1, ());
+    let expected =          "--1-2---3-4--5-|";
+
+    ts |> expectObservable(published |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+
+    published |> Rx.ConnectableObservable.connect;
+  });
+
+  testMarblesWithHotPreset(
+    ~name="reduce: should reduce",
+    ~hot=     "--a--b--c--|",
+    ~hotValues=_ts=>{
+      "a": 1, "b": 3, "c": 5, "x": 9
+    },
+    ~expected="-----------(x|)",
+    ~subs=  [|"^----------!"|],
+    ~operator=Rx.Operators.reduce((o, x, _idx) => o + x, 0),
+    ~values={
+      "a": 1, "b": 3, "c": 5, "x": 9
+    },
+    ()
+  );
+
+  testMarbles("refCount: should turn a multicasted Observable an automatically disconnecting a hot one", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let published = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.publish()
+    |> Rx.Operators.refCount();
+    let expected =          "--1-2---3-4--5-|";
+
+    ts |> expectObservable(published) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+  });
+
+  testMarblesWithColdPreset(
+    ~name="repeat: should resubscribe count number of times",
+    ~cold=    "--a--b--|",
+    ~expected="--a--b----a--b----a--b--|",
+    ~subs=  [|"^-------!----------------",
+              "--------^-------!-------",
+              "----------------^-------!"|],
+    ~operator=Rx.Operators.repeat(~count=3, ()),
+    ()
+  );
+
+  testMarbles("repeatWhen: should handle a source with eventual complete using a hot notifier", ts => {
+    let source = ts |>  cold("-1--2--|");
+    let notifier = ts |> hot("-------------r------------r-|");
+    let expected =           "-1--2---------1--2---------1--2--|";
+
+    let result = source 
+    |> ColdObservable.asObservable
+    |> Rx_Operators.repeatWhen(_notif => notifier |> HotObservable.asObservable);
+
+    ts |> expectObservable(result) |> toBeObservable(expected);
+  }); 
+
+  testMarblesWithColdPreset(
+    ~name="retry: should handle a basic source that emits next then errors",
+    ~cold=    "--a--b--#",
+    ~expected="--a--b----a--b----a--b--#",
+    ~subs=  [|"^-------!----------------",
+              "--------^-------!-------",
+              "----------------^-------!"|],
+    ~operator=Rx.Operators.retry(~count=2, ()),
+    ()
+  );
+
+  testMarbles("retryWhen: should handle a source with eventual complete using a hot notifier", ts => {
+    let source = ts |>  cold("-1--2--#");
+    let notifier = ts |> hot("-----------r-------r---------#");
+    let expected =           "-1--2-------1--2----1--2-----#";
+
+    let result = source 
+    |> ColdObservable.asObservable
+    |> Rx_Operators.retryWhen(_notif => notifier |> HotObservable.asObservable);
+
+    ts |> expectObservable(result) |> toBeObservable(expected);
+  });
+
+  testMarbles("sample: should get samples when the notifier emits", ts => {
+    let e1 = ts |> hot("---a----b---c----------d-----|   ");
+    let e1subs =     [|"^----------------------------!   "|];
+    let e2 = ts |> hot("-----x----------x---x------x---|");
+    let e2subs = [|"^----------------------------!   "|];
+    let expected = "-----a----------c----------d-|   ";
+
+    ts
+    |> expectObservable(
+      e1
+      |> HotObservable.asObservable
+      |> Rx.Operators.sample(e2 |> HotObservable.asObservable))
+    |> toBeObservable(expected)
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e2subs)
+  });
+
+  testMarbles("sampleTime: should get samples on a delay", ts => {
+    let e1 = ts |> hot("a---b-c---------d--e---f-g-h--|");
+    let e1subs = [|"^-----------------------------!"|];
+    let expected = "-------c-------------e------h-|";
+
+    ts
+    |> expectObservable(
+      e1
+      |> HotObservable.asObservable
+      |> Rx.Operators.sampleTime(7, ~scheduler=ts |> TestScheduler.asScheduler, ()))
+    |> toBeObservable(expected)
+
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
+  });
+
+  testMarbles("sequnceEqual: should return true for two sync observables that match", ts => {
+    let s1 = ts |> cold("(abcdefg|)")
+    let s2 = ts |> cold("(abcdefg|)")
+    let expected = "(T|)";
+
+    let result = s1
+    |> ColdObservable.asObservable
+    |> Rx.Operators.sequenceEqual(s2 |> ColdObservable.asObservable, ());
+    ts |> expectObservable(result) |> toBeObservable(expected, ~values={"T": true});
+  });
+
+  testMarbles("share: should mirror a simple source Observable", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let shared = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.share();
+    let expected =    "--1-2---3-4--5-|";
+
+    ts |> expectObservable(shared) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+  });
+
+  testMarbles("shareReplay: should mirror a simple source Observable", ts => {
+    let source = ts |> cold("--1-2---3-4--5-|");
+    let sourceSubs =      [|"^--------------!"|];
+    let shared = source 
+    |> ColdObservable.asObservable
+    |> Rx.Operators.shareReplay();
+    let expected =    "--1-2---3-4--5-|";
+
+    ts |> expectObservable(shared) |> toBeObservable(expected);
+    ts |> expectSubscriptions(source |> ColdObservable.subscriptions) |> toBeSubscriptions(sourceSubs)
+  });
+
+  testMarbles("single: should raise error from empty predicate if observable emits multiple time", ts => {
+    let e1 = ts |> hot("--a--b--c--|");
+    let sub =     [|"^----!     "|];
+    let expected =  "^----#     ";
+
+    ts |> expectObservable(
+      e1
+      |> HotObservable.asObservable
+      |> Rx.Operators.single(()))
+    |> toBeObservable(expected, ~errorValue="Sequence contains more than one element");
+
+    ts 
+    |> expectSubscriptions(e1 |> HotObservable.subscriptions)
+    |> toBeSubscriptions(sub);
+  });
+
+  testMarblesWithHotPreset(
+    ~name="skip: should skip values before a total",
+    ~hot=     "--a--b--c--d--e--|",
+    ~expected="-----------d--e--|",
+    ~subs=  [|"^----------------!"|],
+    ~operator=Rx.Operators.skip(3),
+    ()
+  );
+
+  testMarblesWithHotPreset(
+    ~name="skipLast: should skip two values of an observable with many values",
+    ~hot=     "--a--b--c--d--e--|",
+    ~expected="-----------a--b--|",
+    ~subs=  [|"^----------------!"|],
+    ~operator=Rx.Operators.skipLast(3),
+    ()
+  );
+
+  testMarbles("skipUntil: should skip values until another observable notifies", ts => {
+    let e1 = ts |> hot("--a--b--c--d--e----|");
+    let e1subs =     [|"^------------------!"|];
+    let skip = ts |> hot("---------x------|   ");
+    let skipSubs = [|"^--------!---------"|];
+    let expected =   "-----------d--e----|";
+
+    ts
+    |> expectObservable(
+      e1
+      |> HotObservable.asObservable
+      |> Rx.Operators.skipUntil(skip |> HotObservable.asObservable))
+    |> toBeObservable(expected);
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs);
+    ts |> expectSubscriptions(skip |> HotObservable.subscriptions) |> toBeSubscriptions(skipSubs)
+  });
+
+  testMarblesWithHotPreset(
+    ~name="skipWhile: should skip all elements until predicate is false",
+    ~hot=     "--1--2--3--4--5--|",
+    ~expected="-----------4--5--|",
+    ~subs=  [|"^----------------!"|],
+    ~operator=Rx.Operators.skipWhile((v, _idx) => v < 4),
+    ()
+  );
+
+  testMarblesWithColdPreset(
+    ~name="startWith: should prepend to a cold Observable",
+    ~cold=    "--1--2--3--4--5--|",
+    ~expected="0-1--2--3--4--5--|",
+    ~subs=  [|"^----------------!"|],
+    ~operator=Rx.Operators.startWith([|0|]),
+    ()
+  );
+
+  testMarbles("subscribeOn: should observe on specified scheduler", ts => {
+    let e1 = ts |> hot("--a--b--|");
+    let expected =     "--a--b--|";
+    let sub =        [|"^-------!"|];
+
+    ts |> expectObservable(
+      e1 
+      |> HotObservable.asObservable
+      |> Rx.Operators.subscribeOn(ts |> TestScheduler.asScheduler, ())) 
+    |> toBeObservable(expected);
+    ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(sub);
+  });
+
+  testMarbles("switchMap: should map-and-flatten each item to an Observable", ts => {
+    let e1 = ts |> hot( "--1-----3--5-------|");
+    let e1subs =      [|"^------------------!"|];
+    let e2 = ts |> cold("x-x-x|              ", ~values={"x": 10}) |> ColdObservable.asObservable;
+    let expected =      "--x-x-x-y-yz-z-z---|";
+    let values = {"x": 10, "y": 30, "z": 50};
+
+    let result = e1 
+    |> HotObservable.asObservable
+    |> Rx.Operators.switchMap((x, _idx) => 
+      e2 
+      |> Rx.Operators.map((i, _idx) => i * x
+    ));
+    
+    ts
+    |> expectObservable(result)
+    |> toBeObservable(expected, ~values);
+
+    ts
+    |> expectSubscriptions(e1 |> HotObservable.subscriptions)
+    |> toBeSubscriptions(e1subs);
+  });
+
+  testMarbles("switchMapTo: should map-and-flatten each item to an Observable", ts => {
+    let e1 = ts |> hot("--1-----3--5-------|");
+    let e1subs =     [|"^------------------!"|];
+    let e2 =  ts |> cold("x-x-x|              ", ~values={"x": 10}) |> ColdObservable.asObservable;
+    let expected = "--x-x-x-x-xx-x-x---|";
+    let values = {"x": 10};
+
+    let result = e1
+    |> HotObservable.asObservable
+    |> Rx.Operators.switchMapTo(`Observable(e2));
+
+    ts
+    |> expectObservable(result)
+    |> toBeObservable(expected, ~values);
+
+    ts
+    |> expectSubscriptions(e1 |> HotObservable.subscriptions)
+    |> toBeSubscriptions(e1subs)
+  });
+
 
   ()
 });

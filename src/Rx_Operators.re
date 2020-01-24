@@ -1,5 +1,6 @@
 open Rx_Observable.Observable;
 
+type unaryFunction('a, 'b) = 'a => 'b;
 type operator('a, 'b) = t('a) => t('b);
 
 /**
@@ -194,8 +195,11 @@ external concatAll: unit => operator(t('a), 'a) = "concatAll";
     @return An Observable that emits the result of applying the projection function (and the optional deprecated `resultSelector`) to each item emitted by the source Observable and taking values from each projected inner Observable sequentially.
  */
 [@bs.module "rxjs/operators"]
-external concatMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) =
-  "concatMap";
+external concatMap: ([@bs.unwrap] [
+  | `Observable(('a, int) => t('b))
+  | `Promise(('a, int) => Js.Promise.t('b))
+  | `Array(('a, int) => array('b))
+]) => operator('a, 'b) = "concatMap";
 
 /**
   Projects each source value to the same Observable which is merged multiple
@@ -212,7 +216,11 @@ external concatMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) =
     @return An observable of values merged together by joining the passed observable with itself, one after the other, for each value emitted from the source.
  */
 [@bs.module "rxjs/operators"]
-external concatMapTo: t('a) => operator('b, 'a) = "concatMapTo";
+external concatMapTo: ([@bs.unwrap] [
+  | `Observable(t('a))
+  | `Promise(Js.Promise.t('a))
+  | `Array( array('a))
+]) => operator('b, 'a) = "concatMapTo";
 
 /**
   Emits all of the values from the source observable, then, once it completes, subscribes
@@ -658,101 +666,429 @@ external mergeMap: (
   unit
 ) => operator('a, 'b) = "mergeMap";
 
-[@bs.module "rxjs/operators"]
-external mergeMapTo: (t('b), ~concurrent: int=?, unit) => operator('a, 'b) =
-  "mergeMapTo";
+/**
+  Projects each source value to the same Observable which is merged multiple times in the output Observable.
 
+    @param innerObservable An Observable to replace each value from the source Observable.
+    @param concurrent Maximum number of input Observables being subscribed to concurrently.
+    @return An Observable that emits items from the given `innerObservable`
+ */
 [@bs.module "rxjs/operators"]
-external mergeMapToPromise:
-  (Js.Promise.t('b), ~concurrent: int=?, unit) => operator('a, 'b) =
-  "mergeMapTo";
+external mergeMapTo: (
+  [@bs.unwrap] [
+    | `Observable(t('b))
+    | `Promise(Js.Promise.t('b))
+    | `Array( array('b))
+  ],
+  ~concurrent: int=?, 
+  unit
+) => operator('a, 'b) = "mergeMapTo";
 
-/* OPERATOR: min */
+/**
+  Applies an accumulator function over the source Observable where the
+  accumulator function itself returns an Observable, then each intermediate
+  Observable returned is merged into the output Observable.
+
+    @param accumulator The accumulator function called on each source value.
+    @param seed The initial accumulation value.
+    @param concurrent Maximum number of input Observables being subscribed to concurrently
+    @return An observable of the accumulated values.
+ */
+[@bs.module "rxjs/operators"]
+external mergeScan: (
+  [@bs.unwrap] [
+    | `Observable(('b, 'a, int) => t('b))
+    | `Promise(('b, 'a, int) => Js.Promise.t('b))
+    | `Array(('b, 'a, int) => array('b))
+  ],
+  ~seed: 'b,
+  ~concurrent: int=?,
+  unit
+) => operator('a, 'b) = "mergeScan";
+
+/**
+  The Min operator operates on an Observable that emits numbers (or items that can be compared with a provided function)and when source Observable completes it emits a single item: the item with the smallest value.
+
+    @return An Observable that emits item with the smallest value.
+ */
 [@bs.module "rxjs/operators"] external min: unit => operator('a, 'a) = "min";
 
-[@bs.module "rxjs/operators"]
-external minCustom: ([@bs.uncurry] (('a, 'a) => bool)) => operator('a, 'a) =
-  "min";
+/**
+  The Min operator operates on an Observable that emits numbers (or items that can be compared with a provided function)and when source Observable completes it emits a single item: the item with the largest value.
 
-/* OPERATOR: pairwise */
+    @param Optional comparer function that it will use instead of its default to compare the value of two items.
+    @return An Observable that emits item with the smallest value.
+ */
+[@bs.module "rxjs/operators"]
+external minWithComparer: ([@bs.uncurry] (('a, 'a) => float)) => operator('a, 'a) = "min";
+
+/**
+  Returns an Observable that emits the results of invoking a specified selector on items
+  emitted by a ConnectableObservable that shares a single subscription to the underlying stream.
+
+    @param subjectOrSubjectFactory Factory function to create an intermediate subject through which the source sequence's elements will be multicasted to the selector function or Subject to push source elements into.
+    @param selector Optional selector function that can use the multicasted source stream as many times as needed, without causing multiple subscriptions to the source stream Subscribers to the given source will receive all notifications of the source from the time of the subscription forward.
+    @return An Observable that emits the results of invoking the selector on the items emitted by a `ConnectableObservable` that shares a single subscription to the underlying stream.
+ */
+[@bs.module "rxjs/operators"]
+external multicast: (
+  [@bs.unwrap] [
+    | `Subject(Rx_Subject.t('a))
+    | `SubjectFactory(unit => Rx_Subject.t('a))
+  ],
+  ~selector: (t('a) => t('b))=?,
+  unit
+) => unaryFunction(t('a), Rx_ConnectableObservable.t('a)) = "multicast";
+
+/**
+  Re-emits all notifications from source Observable with specified scheduler.
+  Ensure a specific scheduler is used, from outside of an Observable.
+
+  `observeOn` is an operator that accepts a scheduler as a first parameter, which will be used to reschedule
+  notifications emitted by the source Observable. It might be useful, if you do not have control over
+  internal scheduler of a given Observable, but want to control when its values are emitted nevertheless.
+
+    @param scheduler Scheduler that will be used to reschedule notifications from source Observable.
+    @param delay Number of milliseconds that states with what delay every notification should be rescheduled.
+    @return Observable that emits the same notifications as the source Observable, but with provided scheduler.
+ */
+[@bs.module "rxjs/operators"]
+external observeOn: (Rx_Scheduler.t, ~delay: int=?, unit) => operator('a, 'a) = "observeOn";
+
+/**
+  When any of the provided Observable emits an complete or error notification, it immediately subscribes to the next one
+  that was passed.
+
+    @param observables Observables passed as an array
+    @return An Observable that emits values from source Observable, but - if it errors - subscribes to the next passed Observable and so on, until it completes or runs out of Observables.
+ */
+[@bs.module "rxjs/operators"]
+external onErrorResumeNext: (
+  [@bs.unwrap] [
+    | `Observable(array(t('b)))
+    | `Promise(array(Js.Promise.t('b)))
+    | `Array(array(array('b)))
+  ]
+) => operator('a, 'b) = "onErrorResumeNext";
+
+/**
+  Groups pairs of consecutive emissions together and emits them as an array of two values.
+
+    @return An Observable of pairs (as arrays) of consecutive values from the source Observable.
+ */
 [@bs.module "rxjs/operators"]
 external pairwise: unit => operator('a, ('a, 'a)) = "pairwise";
 
-/* OPERATOR: reduce */
+/**
+  Splits the source Observable into two, one with values that satisfy a predicate, 
+  and another with values that don't satisfy the predicate
+
+    @param predicate A function that evaluates each value emitted by the source Observable.
+    @return Observables tuple: one with values that passed the predicate, and another with values that did not pass the predicate.
+ */
 [@bs.module "rxjs/operators"]
-external reduce:
-  ([@bs.uncurry] (('acc, 'a, int) => 'acc), 'acc) => operator('a, 'acc) =
-  "reduce";
+external partition: (('a, int) => bool) => unaryFunction(t('a), (t('a), t('a))) = "partition";
 
-/* OPERATOR: refCount */
+// Don't feel like pluck is a good fit. use map instead
+ 
+/**
+  Returns a ConnectableObservable, which is a variety of Observable that waits until its connect method is called
+  before it begins emitting items to those Observers that have subscribed to it.
+
+    @param Optional selector function which can use the multicasted source sequence as many times as needed, without causing multiple subscriptions to the source sequence.
+    @return A ConnectableObservable that upon connection causes the source Observable to emit items to its Observers
+ */
 [@bs.module "rxjs/operators"]
-external refCount: unit => operator('a, 'a) = "refCount";
+external publish: (~selector: (t('a) => t('b))=?, unit) => unaryFunction(t('a), Rx_ConnectableObservable.t('b)) = "publish";
 
-/* OPERATOR: repeat */
 [@bs.module "rxjs/operators"]
-external _repeat: (~count: int=?, unit) => operator('a, 'a) = "repeat";
+external publishBehavior: 'a => unaryFunction(t('a), Rx_ConnectableObservable.t('a)) = "publishBehavior";
 
-let repeat = (~count=(-1), stream) => _repeat(~count, (), stream);
+/**
+  Returns a connectable observable sequence that shares a single subscription to the
+  underlying sequence containing only the last notification.
 
-/* OPERATOR: retry */
+  Similar to {@link publish}, but it waits until the source observable completes and stores the last emitted value.
+
+    @return An observable sequence that contains the elements of a sequence produced by multicasting the source sequence.
+ */
+[@bs.module "rxjs/operators"]
+external publishLast: unit => unaryFunction(t('a), Rx_ConnectableObservable.t('a)) = "publishLast";
+
+[@bs.module "rxjs/operators"]
+external publishReplay: (
+  ~bufferSize: int=?,
+  ~windowTime: int=?,
+  ~selectorOrScheduler: [@bs.unwrap][
+    | `Selector(operator('a, 'b))
+    | `Scheduler(Rx_Scheduler.t)
+  ]=?,
+  unit
+) => unaryFunction(t('a), Rx_ConnectableObservable.t('a)) = "publishReplay";
+
+/**
+  Applies an accumulator function over the source Observable, and returns the
+  accumulated result when the source completes, given an optional seed value.
+
+    @param accumulator The accumulator function called on each source value.
+    @param seed The initial accumulation value.
+    @return An Observable that emits a single value that is the result of accumulating the values emitted by the source Observable.
+ */
+[@bs.module "rxjs/operators"]
+external reduce: ([@bs.uncurry] (('acc, 'a, int) => 'acc), 'acc) => operator('a, 'acc) = "reduce";
+
+/**
+  Make a ConnectableObservable behave like a ordinary observable and automates the way you can connect to it.
+
+  Internally it counts the subscriptions to the observable and subscribes (only once) to the source if
+  the number of subscriptions is larger than 0. If the number of subscriptions is smaller than 1, it
+  unsubscribes from the source. This way you can make sure that everything before the *published*
+  refCount has only a single subscription independently of the number of subscribers to the target observable
+ */
+[@bs.module "rxjs/operators"]
+external refCount: unit => unaryFunction(Rx_ConnectableObservable.t('a), t('a)) = "refCount";
+
+/** 
+  Returns an Observable that will resubscribe to the source stream when the source stream completes, at most count times.
+    
+    @param count The number of times the source Observable items are repeated, a count of 0 will yield an empty Observable.
+    @return An Observable that will resubscribe to the source stream when the source stream completes, at most count times.
+ */
+[@bs.module "rxjs/operators"]
+external repeat: (~count: int=?, unit) => operator('a, 'a) = "repeat";
+
+/**
+  Returns an Observable that mirrors the source Observable with the exception of a `complete`. If the source
+  Observable calls `complete`, this method will emit to the Observable returned from `notifier`. If that Observable
+  calls `complete` or `error`, then this method will call `complete` or `error` on the child subscription. Otherwise
+  this method will resubscribe to the source Observable.
+
+    @param notifier - Receives an Observable of notifications with which a user can `complete` or `error`, aborting the repetition.
+    @return The source Observable modified with repeat logic
+ */
+[@bs.module "rxjs/operators"]
+external repeatWhen: ([@bs.uncurry](t('error) => t('n))) => operator('a, 'a) = "repeatWhen";
+
+/**
+  Returns an Observable that mirrors the source Observable with the exception of an `error`. If the source Observable
+  calls `error`, this method will resubscribe to the source Observable for a maximum of `count` resubscriptions 
+  (given as a number parameter) rather than propagating the `error` call.
+
+    @param count Number of retry attempts before failing.
+    @return The source Observable modified with the retry logic.
+ */
 [@bs.module "rxjs/operators"]
 external retry: (~count: int=?, unit) => operator('a, 'a) = "retry";
 
-/* OPERATOR: retryWhen */
+/**
+  Returns an Observable that mirrors the source Observable with the exception of an `error`. If the source Observable
+  calls `error`, this method will emit the Throwable that caused the error to the Observable returned from `notifier`.
+  If that Observable calls `complete` or `error` then this method will call `complete` or `error` on the child
+  subscription. Otherwise this method will resubscribe to the source Observable.
+
+    @param notifier Receives an Observable of notifications with which a user can `complete` or `error`, aborting the retry
+    @return The source Observable modified with retry logic.
+ */
 [@bs.module "rxjs/operators"]
-external retryWhen: (t(Js.Exn.t) => t('b)) => operator('a, 'a) =
-  "retryWhen";
+external retryWhen: ([@bs.uncurry](t('error) => t('n))) => operator('a, 'a) = "retryWhen";
 
-/* OPERATOR: sample */
+/**
+  Emits the most recently emitted value from the source Observable whenever another Observable, the `notifier`, emits.
+
+    @param The Observable to use for sampling the source Observable.
+    @return An Observable that emits the results of sampling the values emitted by the source Observable whenever the notifier Observable emits value or completes.
+ */
 [@bs.module "rxjs/operators"]
-external sample: t('any) => operator('a, 'a) = "sample";
+external sample: t('n) => operator('a, 'a) = "sample";
 
-/* OPERATOR: sampleTime */
-//TODO:
-// [@bs.module "rxjs/operators"]
-// external sampleTime: (int, ~scheduler: scheduler=?, unit) => operator('a, 'a) =
-//   "";
+/**
+  Emits the most recently emitted value from the source Observable within periodic time intervals.
 
-/* OPERATOR: scan */
+    @param The sampling period expressed in milliseconds or the time unit determined internally by the optional `scheduler`.
+    @param scheduler The Scheduler to use for managing the timers that handle the sampling.
+    @return An Observable that emits the results of sampling the values emitted by the source Observable at the specified time interval.
+ */
 [@bs.module "rxjs/operators"]
-external scan:
-  ([@bs.uncurry] (('acc, 'a, int) => 'acc), 'acc) => operator('a, 'acc) =
-  "scan";
+external sampleTime: (int, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) = "sampleTime";
 
-/* OPERATOR: share */
+/**
+  Applies an accumulator function over the source Observable, and returns each
+  intermediate result, with an optional seed value.
+
+  It's like reduce}, but emits the current accumulation whenever the source emits a value.
+
+    @param accumulator The accumulator function called on each source value.
+    @param seed The initial accumulation value.
+    @return An observable of the accumulated values.
+ */
+[@bs.module "rxjs/operators"]
+external scan: ([@bs.uncurry] (('acc, 'a, int) => 'acc), 'acc) => operator('a, 'acc) = "scan";
+
+[@bs.module "rxjs/operators"]
+external _sequenceEqual: (t('a), ~comparator:[@bs.uncurry](('a, 'a) => bool)) => operator('a, bool) = "sequenceEqual";
+
+/**
+  Compares all values of two observables in sequence using an optional comparator function
+  and returns an observable of a single boolean value representing whether or not the two sequences are equal.
+
+    @param compareTo The observable sequence to compare the source sequence to.
+    @param comparator An optional function to compare each value pair
+    @return An Observable of a single boolean value representing whether or not the values emitted by both observables were equal in sequence.
+ */
+let sequenceEqual = (other, ~comparator=(lhs, rhs) => lhs === rhs, ()) => _sequenceEqual(other, ~comparator);
+
+/**
+  Returns a new Observable that multicasts (shares) the original Observable. As long as there is at least one
+  Subscriber this Observable will be subscribed and emitting data. When all subscribers have unsubscribed it will
+  unsubscribe from the source Observable. Because the Observable is multicasting it makes the stream `hot`.
+  This is an alias for obs |> Rx.Operators.multicast(`SubjectFactory(() => Rx.Subject.create()), ()) |> Rx.Operators.refCount()`.
+
+    @return An Observable that upon connection causes the source Observable to emit items to its Observers.
+ */
 [@bs.module "rxjs/operators"]
 external share: unit => operator('a, 'a) = "share";
 
-/* OPERATOR: skip */
-[@bs.module "rxjs/operators"] external skip: int => operator('a, 'a) = "skip";
+/**
+  Share source and replay specified number of emissions on subscription.
+  
+  This operator is a specialization of `replay` that connects to a source observable
+  and multicasts through a `ReplaySubject` constructed with the specified arguments.
+  A successfully completed source will stay cached in the `shareReplayed observable` forever,
+  but an errored source can be retried.
 
-/* OPERATOR: skipLast */
+    @param bufferSize Maximum element count of the replay buffer.
+    @param windowTime Maximum time length of the replay buffer in milliseconds.
+    @param scheduler Scheduler where connected observers within the selector function will be invoked on.
+    @return An observable sequence that contains the elements of a sequence produced by multicasting the source sequence within a selector function.
+ */
+[@bs.module "rxjs/operators"]
+external shareReplay: (
+  ~bufferSize: int=?,
+  ~windowTime: int=?,
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => operator('a, 'a) = "shareReplay";
+
+[@bs.module "rxjs/operators"]
+external _single: (
+  ~predicate: [@bs.uncurry](('a, int, t('a)) => bool)
+) => operator('a, 'b) = "single";
+
+/**
+  Returns an Observable that emits the single item emitted by the source Observable that matches a specified
+  predicate, if that Observable emits one such item. If the source Observable emits more than one such item or no
+  items, notify of an IllegalArgumentException or NoSuchElementException respectively. If the source Observable
+  emits items but none match the specified predicate then `undefined` is emitted.
+  
+  Like first, but emit with error notification if there is more than one value
+ */
+let single = (~predicate=(_x, _idx, _src) => true, ()) => _single(~predicate);
+
+/**
+  Returns an Observable that skips the first `count` items emitted by the source Observable.
+
+    @param The number of times, items emitted by source Observable should be skipped.
+    @return An Observable that skips values emitted by the source Observable.
+ */
+[@bs.module "rxjs/operators"] 
+external skip: int => operator('a, 'a) = "skip";
+
+/**
+  Skip the last `count` values emitted by the source Observable.
+
+    @param count Number of elements to skip from the end of the source Observable.
+    @param An Observable that skips the last count values emitted by the source Observable.
+ */
 [@bs.module "rxjs/operators"]
 external skipLast: int => operator('a, 'a) = "skipLast";
 
-/* OPERATOR: skipUntil */
-[@bs.module "rxjs/operators"]
-external skipUntil: t('any) => operator('a, 'a) = "skipUntil";
+/**
+  Returns an Observable that skips items emitted by the source Observable until a second Observable emits an item.
 
-/* OPERATOR: skipWhile */
-[@bs.module "rxjs/operators"]
-external skipWhile: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) =
-  "skipWhile";
+  The `skipUntil` operator causes the observable stream to skip the emission of values ​​until the passed in observable emits the first value.
+  This can be particularly useful in combination with user interactions, responses of http requests or waiting for specific times to pass by.
 
-/* OPERATOR: switchMap */
+    @param The second Observable that has to emit an item before the source Observable's elements begin to be mirrored by the resulting Observable.
+    @return An Observable that skips items from the source Observable until the second Observable emits an item, then emits the remaining items.
+ */
 [@bs.module "rxjs/operators"]
-external switchMap: ([@bs.uncurry] ('a => t('b))) => operator('a, 'b) =
-  "switchMap";
+external skipUntil: t('n) => operator('a, 'a) = "skipUntil";
 
-[@bs.module "rxjs/operators"]
-external switchMapArray:
-  ([@bs.uncurry] ('a => array('b))) => operator('a, 'b) =
-  "switchMap";
+/**
+  Returns an Observable that skips all items emitted by the source Observable as long as a specified condition holds
+  true, but emits all further source items as soon as the condition becomes false.
 
+    @param predicate A function to test each item emitted from the source Observable.
+    @return An Observable that begins emitting items emitted by the source Observable when the specified predicate becomes false.
+ */
 [@bs.module "rxjs/operators"]
-external switchMapPromise:
-  ([@bs.uncurry] ('a => Js.promise('b, 'e))) => operator('a, 'b) =
-  "switchMap";
+external skipWhile: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) = "skipWhile";
+
+/**
+  Returns an Observable that emits the items you specify as arguments before it begins to emit
+  items emitted by the source Observable.
+
+    @param Items you want the modified Observable to emit first
+    @return An Observable that emits the items in the specified Iterable and then emits the items emitted by the source Observable.
+ */
+[@bs.module "rxjs/operators"][@bs.variadic]
+external startWith: array('a) => operator('a, 'a) = "startWith";
+
+/**
+  Asynchronously subscribes Observers to this Observable on the specified Scheduler
+  With subscribeOn you can decide what type of scheduler a specific Observable will be using when it is subscribed to.
+
+    @param The SchedulerLike to perform subscription actions on.
+    @param delay delay
+    @return The source Observable modified so that its subscriptions happen on the specified Scheduler
+ */
+[@bs.module "rxjs/operators"]
+external subscribeOn: (Rx_Scheduler.t, ~delay: int=?, unit) => operator('a, 'a) = "subscribeOn";
+
+/**
+  Converts a higher-order Observable into a first-order Observable
+  producing values only from the most recent observable sequence
+ */
+[@bs.module "rxjs/operators"]
+external switchAllObservable: unit => operator(t('a), 'a) = "switchAll";
+
+/**
+  Converts a higher-order Observable into a first-order Observable
+  producing values only from the most recent observable sequence
+ */
+[@bs.module "rxjs/operators"]
+external switchAllPromise: unit => operator(Js.Promise.t('a), 'a) = "switchAll";
+
+/**
+  Converts a higher-order Observable into a first-order Observable
+  producing values only from the most recent observable sequence
+ */
+[@bs.module "rxjs/operators"]
+external switchAllArray: unit => operator(array('a), 'a) = "switchAll";
+
+/**
+  Projects each source value to an Observable which is merged in the output
+  Observable, emitting values only from the most recently projected Observable.
+
+    @param A function that, when applied to an item emitted by the source Observable, returns an Observable.
+    @return An Observable that emits the result of applying the projection function (and the optional deprecated `resultSelector`) to each item emitted by the source Observable and taking only the values from the most recently projected inner Observable.
+ */
+[@bs.module "rxjs/operators"]
+external switchMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) = "switchMap";
+
+/**
+  Projects each source value to the same Observable which is flattened multiple
+  times with switchMap in the output Observable.
+
+    @param innerObservable An Observable to replace each value from the source Observable.
+    @return An Observable that emits items from the given `innerObservable` (and optionally transformed through the deprecated `resultSelector` every time a value is emitted on the source Observable, and taking only the values from the most recently projected inner Observable.
+ */
+[@bs.module "rxjs/operators"]
+external switchMapTo: ([@bs.unwrap] [
+  | `Observable(t('a))
+  | `Promise(Js.Promise.t('a))
+  | `Array( array('a))
+]) => operator('b, 'a) = "switchMapTo";
 
 /* OPERATOR: take */
 [@bs.module "rxjs/operators"] external take: int => operator('a, 'a) = "take";
