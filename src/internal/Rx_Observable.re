@@ -100,6 +100,311 @@ module Observable = {
   include Impl({ type nonrec t('a) = t('a); });
 };
 
+type obsUnitCreator('a) = (. unit) => Observable.t('a);
+type obsCreator('arg, 'a) = (. 'arg) => Observable.t('a);
+type obsCreator2('arg1, 'arg2, 'b) = (. 'arg1, 'arg2) => Observable.t('b);
+type obsCreator3('arg1, 'arg2, 'arg3, 'b) = (. 'arg1, 'arg2, 'arg3) => Observable.t('b);
+type obsCreator4('arg1, 'arg2, 'arg3, 'arg4, 'b) = (. 'arg1, 'arg2, 'arg3, 'arg4) => Observable.t('b);
+type obsCreator5('arg1, 'arg2, 'arg3, 'arg4, 'arg5, 'b) = (. 'arg1, 'arg2, 'arg3, 'arg4, 'arg5) => Observable.t('b);
+
+/**
+  Converts a callback API to a function that returns an Observable.
+
+  Give it a function `f` of type `f(x, callback)` and
+  it will return a function `g` that when called as `g(x)` will output an
+  Observable.
+
+    @param func A function with a callback as the last parameter.
+    @param {SchedulerLike} [scheduler] The scheduler on which to schedule the callbacks.
+    @return A function which returns the Observable that delivers the same values the callback would deliver.
+ */
+[@bs.module "rxjs"]
+external bindCallback: ([@bs.uncurry](unit => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsUnitCreator(unit) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback1Arg0: ([@bs.uncurry]('a => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, 'a) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback2Arg0: ([@bs.uncurry](('a, 'b) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, ('a, 'b)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback3Arg0: ([@bs.uncurry](('a, 'b, 'c) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, ('a, 'b, 'c)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback4Arg0: ([@bs.uncurry](('a, 'b, 'c, 'd) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, ('a, 'b, 'c, 'd)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback5Arg0: ([@bs.uncurry](('a, 'b, 'c, 'd, 'e) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, ('a, 'b, 'c, 'd, 'e)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback6Arg0: ([@bs.uncurry](('a, 'b, 'c, 'd, 'e, 'f) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, ('a, 'b, 'c, 'd, 'e, 'f)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback7Arg0: ([@bs.uncurry](('a, 'b, 'c, 'd, 'e, 'f, 'g) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, ('a, 'b, 'c, 'd, 'e, 'f, 'g)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback8Arg0: ([@bs.uncurry](('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator(unit, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback1Arg1: ([@bs.uncurry]('a1, 'a => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, 'a) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback2Arg1: ([@bs.uncurry]('a1, ('a, 'b) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, ('a, 'b)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback3Arg1: ([@bs.uncurry]('a1, ('a, 'b, 'c) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, ('a, 'b, 'c)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback4Arg1: ([@bs.uncurry]('a1, ('a, 'b, 'c, 'd) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, ('a, 'b, 'c, 'd)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback5Arg1: ([@bs.uncurry]('a1, ('a, 'b, 'c, 'd, 'e) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, ('a, 'b, 'c, 'd, 'e)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback6Arg1: ([@bs.uncurry]('a1, ('a, 'b, 'c, 'd, 'e, 'f) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, ('a, 'b, 'c, 'd, 'e, 'f)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback7Arg1: ([@bs.uncurry]('a1, ('a, 'b, 'c, 'd, 'e, 'f, 'g) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, ('a, 'b, 'c, 'd, 'e, 'f, 'g)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback8Arg1: ([@bs.uncurry]('a1, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator('a1, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback1Arg2: ([@bs.uncurry]('a1, 'a2, 'a => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, 'a) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback2Arg2: ([@bs.uncurry]('a1, 'a2, ('a, 'b) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, ('a, 'b)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback3Arg2: ([@bs.uncurry]('a1, 'a2, ('a, 'b, 'c) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, ('a, 'b, 'c)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback4Arg2: ([@bs.uncurry]('a1, 'a2, ('a, 'b, 'c, 'd) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, ('a, 'b, 'c, 'd)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback5Arg2: ([@bs.uncurry]('a1, 'a2, ('a, 'b, 'c, 'd, 'e) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, ('a, 'b, 'c, 'd, 'e)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback6Arg2: ([@bs.uncurry]('a1, 'a2, ('a, 'b, 'c, 'd, 'e, 'f) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, ('a, 'b, 'c, 'd, 'e, 'f)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback7Arg2: ([@bs.uncurry]('a1, 'a2, ('a, 'b, 'c, 'd, 'e, 'f, 'g) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, ('a, 'b, 'c, 'd, 'e, 'f, 'g)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback8Arg2: ([@bs.uncurry]('a1, 'a2, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator2('a1, 'a2, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback1Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, 'a => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, 'a) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback2Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, ('a, 'b) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, ('a, 'b)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback3Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, ('a, 'b, 'c) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, ('a, 'b, 'c)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback4Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, ('a, 'b, 'c, 'd) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, ('a, 'b, 'c, 'd)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback5Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback6Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e, 'f) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e, 'f)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback7Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e, 'f, 'g) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e, 'f, 'g)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback8Arg3: ([@bs.uncurry]('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator3('a1, 'a2, 'a3, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback1Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, 'a) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback2Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, ('a, 'b) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, ('a, 'b)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback3Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback4Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback5Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback6Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e, 'f) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e, 'f)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback7Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e, 'f, 'g) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e, 'f, 'g)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback8Arg4: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator4('a1, 'a2, 'a3, 'a4, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback1Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, 'a => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, 'a) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback2Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback3Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback4Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback5Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback6Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e, 'f) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e, 'f)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback7Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e, 'f, 'g) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e, 'f, 'g)) = "bindCallback";
+[@bs.module "rxjs"]
+external bindCallback8Arg5: ([@bs.uncurry]('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => 'cr) => 'fr, ~scheduler: Rx_Scheduler.t=?, unit) => obsCreator5('a1, 'a2, 'a3, 'a4, 'a5, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h)) = "bindCallback";
+
+/**
+  Combines multiple Observables to create an Observable whose values are
+  calculated from the latest values of each of its input Observables.
+  
+  Whenever any input Observable emits a value, it
+  computes a formula using the latest values from all the inputs, then emits
+  the output of that formula.
+
+    @param An array of input Observables to combine with each other.
+    @return An Observable of projected values from the most recent values from each input Observable, or an array of the most recent values from each input Observable.
+ */
+[@bs.module "rxjs"]
+external combineLatest: array(Observable.t('a)) => Observable.t(array('a)) = "combineLatest";
+[@bs.module "rxjs"]
+external combineLatest2: (Observable.t('b), Observable.t('c)) => Observable.t(('b, 'c)) = "combineLatest";
+[@bs.module "rxjs"]
+external combineLatest3: (Observable.t('b), Observable.t('c), Observable.t('d)) => Observable.t(('b, 'c, 'd)) = "combineLatest";
+[@bs.module "rxjs"]
+external combineLatest4: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e)) => Observable.t(('b, 'c, 'd, 'e)) = "combineLatest";
+[@bs.module "rxjs"]
+external combineLatest5: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f)) => Observable.t(('b, 'c, 'd, 'e, 'f)) = "combineLatest";
+[@bs.module "rxjs"]
+external combineLatest6: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g)) = "combineLatest";
+[@bs.module "rxjs"]
+external combineLatest7: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g), Observable.t('h)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g, 'h)) = "combineLatest";
+[@bs.module "rxjs"]
+external combineLatest8: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g), Observable.t('h), Observable.t('i)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g, 'h, 'i)) = "combineLatest";
+
+/**
+  Creates an output Observable which sequentially emits all values from given
+  Observable and then moves on to the next.
+
+  Concatenates multiple Observables together by
+  sequentially emitting their values, one Observable after the other.
+
+    @param An array of input Observables to concat with each other.
+    @return Combined observable
+ */
+[@bs.module "rxjs"][@bs.variadic]
+external concat: array(Observable.t('a))  => Observable.t('a) = "concat";
+
+/**
+  Creates an Observable that, on subscribe, calls an Observable factory to
+  make an Observable for each new Observer.
+
+  Creates the Observable lazily, that is, only when it is subscribed.
+
+    @param observableFactory The Observable factory function to invoke for each Observer that subscribes to the output Observable. May also return a Promise, which will be converted on the fly to an Observable.
+    @return An Observable whose Observers' subscriptions trigger an invocation of the given Observable factory function.
+ */
+[@bs.module "rxjs"]
+external defer: (
+  [@bs.unwrap] [
+    | `Observable(unit => Observable.t('a))
+    | `Promise(unit => Js.Promise.t('a))
+    | `Array(unit => array('a))
+  ]
+) => Observable.t('a) = "defer";
+
+/**
+  Creates an Observable that emits no items to the Observer and immediately emits a complete notification.
+ */
+[@bs.module "rxjs"][@bs.val] external empty: Observable.t('a) = "EMPTY";
+
+/**
+  Accepts an `Array` of ObservableInput or a dictionary `Object` of ObservableInput and returns
+  an Observable that emits either an array of values in the exact same order as the passed array,
+  or a dictionary of values in the same shape as the passed dictionary.
+
+  Wait for Observables to complete and then combine last values they emitted.
+
+    @param sources Any number of Observables provided either as an array or as an arguments passed directly to the operator.
+    @return Observable emitting either an array of last values emitted by passed Observables or value from project function.
+ */
+[@bs.module "rxjs"]
+external forkJoin: (
+  [@bs.unwrap][
+    | `PromiseArray(array(Js.Promise.t('a)))
+    | `ObservableArray(array(Observable.t('a)))
+    | `ArrayLikeArray(array(array('a)))
+    | `Dict(Js.t({..}))
+  ]
+) => Observable.t('a) = "forkJoin";
+
+[@bs.module "rxjs"]
+external forkJoin2: (Observable.t('b), Observable.t('c)) => Observable.t(('b, 'c)) = "forkJoin";
+[@bs.module "rxjs"]
+external forkJoin3: (Observable.t('b), Observable.t('c), Observable.t('d)) => Observable.t(('b, 'c, 'd)) = "forkJoin";
+[@bs.module "rxjs"]
+external forkJoin4: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e)) => Observable.t(('b, 'c, 'd, 'e)) = "forkJoin";
+[@bs.module "rxjs"]
+external forkJoin5: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f)) => Observable.t(('b, 'c, 'd, 'e, 'f)) = "forkJoin";
+[@bs.module "rxjs"]
+external forkJoin6: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g)) = "forkJoin";
+[@bs.module "rxjs"]
+external forkJoin7: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g), Observable.t('h)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g, 'h)) = "forkJoin";
+[@bs.module "rxjs"]
+external forkJoin8: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g), Observable.t('h), Observable.t('i)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g, 'h, 'i)) = "forkJoin";
+
+/**
+  Creates an Observable from an Array, an array-like object, a Promise, an iterable object, or an Observable-like object.
+
+    @param A subscription object, a Promise, an Observable-like, an Array
+    @param An optional {@link SchedulerLike} on which to schedule the emission of values.
+    @return An observable
+ */
+[@bs.module "rxjs"]
+external from: (
+  [@bs.unwrap][
+    | `Array(array('a))
+    | `Promise(Js.Promise.t('a))
+    | `Observable(Observable.t('a))
+    | `Subscription(Rx_Subscription.t)
+  ],
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => Observable.t('a) = "from";
+
+/**
+  Creates an Observable that emits events of a specific type coming from the
+  given event target.
+
+  Creates an Observable from DOM events, or Node.js EventEmitter events or others.
+
+    @param target The DOM EventTarget, Node.js, EventEmitter, JQuery-like event target, NodeList or HTMLCollection to attach the event handler to
+    @param eventName The event name of interest, being emitted by the `target`
+    @return observable
+ */
+[@bs.module "rxjs"]
+external fromEvent: (
+  ~target: 'target,
+  ~eventName: string
+) => Observable.t('a) = "fromEvent";
+
+/**
+  Creates an Observable that emits events of a specific type coming from the
+  given event target.
+
+  Creates an Observable from DOM events, or Node.js EventEmitter events or others.
+
+    @param target The DOM EventTarget, Node.js, EventEmitter, JQuery-like event target, NodeList or HTMLCollection to attach the event handler to
+    @param eventName The event name of interest, being emitted by the `target`
+    @param options Options to pass through to addEventListener
+    @return observable
+ */
+[@bs.module "rxjs"]
+external fromEventWithOptions: (
+  ~target: 'target,
+  ~eventName: string,
+  ~options: Rx_Types.EventListenerOptions.t
+) => Observable.t('a) = "fromEvent";
+
+/**
+  Creates an Observable from an arbitrary API for registering event handlers.
+  When that method for adding event handler was something was not prepared for.
+
+    @param addHandler A function that takes a `handler` function as argument and attaches it somehow to the actual source of events.
+    @param removeHandler A function that takes a `handler` function as an argument and removes it from the event source. If `addHandler` returns some kind of token, `removeHandler` function will have it as a second parameter.
+    @return Observable which, when an event happens, emits first parameter passed to registered event handler. Alternatively it emits whatever project function returns at that moment.
+ */
+[@bs.module "rxjs"]
+external fromEventPattern: (
+  ~addHandler: [@bs.uncurry]('handler => 'res),
+  ~removeHandler: [@bs.uncurry](('handler, 'signal) => unit)=?,
+  unit
+) => Observable.t('a) = "fromEventPattern";
+
+/**
+  Generates an observable sequence by running a state-driven loop
+  producing the sequence's elements, using the specified scheduler to send out observer messages.
+
+    @param initialState Initial state.
+    @param condition Condition to terminate generation (upon returning false).
+    @param iterate Iteration step function.
+    @param resultSelector Selector function for results produced in the sequence.
+    @param scheduler A Scheduler on which to run the generator loop. If not provided, defaults to emit immediately.
+    @return Observable of generated sequence.
+ */
+[@bs.module "rxjs"]
+external generate: (
+  ~initialState: 's,
+  ~condition: [@bs.uncurry]('s => bool),
+  ~iterate: [@bs.uncurry]('s => 's),
+  ~resultSelector: [@bs.uncurry]('s => 't),
+  ~scheduler: Rx_Scheduler.t,
+  unit
+) => Observable.t('t) = "generate";
+
 /**
   Converts the arguments to an observable sequence.
   Unlike {@link from}, it does not do any flattening and emits each argument in whole as a separate `next` notification.
@@ -117,8 +422,3 @@ module Observable = {
     @return An Observable that emits the arguments described above and then completes
  */
 [@bs.module "rxjs"] external of1: 'a => Observable.t('a) = "of";
-
-/**
-  Creates an Observable that emits no items to the Observer and immediately emits a complete notification.
- */
-[@bs.module "rxjs"][@bs.val] external empty: Observable.t('a) = "EMPTY";

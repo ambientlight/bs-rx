@@ -38,3 +38,12 @@ module Timestamp = {
     timestamp: float
   };
 };
+
+module EventListenerOptions = {
+  [@bs.deriving abstract]
+  type t = {
+    [@bs.optional] capture: bool,
+    [@bs.optional] passive: bool,
+    [@bs.optional] once: bool
+  }
+}
