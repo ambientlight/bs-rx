@@ -5,7 +5,7 @@ Most functionality is available, while ajax / fetch / websocket apis are not yet
 ## Installation
 
 ```
-npm install bs-rx
+npm install @ambientlight/bs-rx
 ```
 
-Then add `bs-rx` into `bs-dependencies` in your project `bsconfig.json`.
+Then add `@ambientlight/bs-rx` into `bs-dependencies` in your project `bsconfig.json`.

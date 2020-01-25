@@ -1,6 +1,6 @@
 {
-    "name": "bs-rx",
-    "version": "0.1.0",
+    "name": "@ambientlight/bs-rx",
+    "version": "0.1",
     "description": "buckleScript bindings for RxJs v7",
     "scripts": {
         "build": "bsb -make-world",
