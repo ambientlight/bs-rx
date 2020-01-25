@@ -1,0 +1,70 @@
+name: Deploy Docs
+on:
+  push:
+    branches:    
+      - master  
+
+jobs:
+  deployDocs:
+    name: test and generate docs
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build, and test
+      run: |
+        npm install
+        npm run build
+        npm run test
+      env:
+        CI: true
+    - name: setup-opam-ocaml
+      uses: fangyi-zhou/actions-ocaml@v1
+      with:
+        ocaml_version: 4.02.3+buckle-master
+    - name: install odoc
+      run: |
+        opam install odoc --yes
+    - name: install esy
+      run: |
+        npm install -g esy@0.5.6
+    - name: build bsdoc
+      run: |
+        git clone https://github.com/reuniverse/bsdoc.git
+        cd bsdoc
+        esy install
+        esy release
+        find _release/_export/ -iname "bsdoc*" -exec tar -zxvf {} --strip-components 1 \;
+    - name: generate docs
+      run: |
+        # clean __tests__ to not have test modules in a wrapping module in docs
+        rm -r ./__tests__
+        mkdir __tests__
+        # rebuild
+        npm run clean
+        npm run build
+        
+        # generate docs
+        ./bsdoc/bin/bsdoc build -v --debug Rx
+        
+        # move wrapping module docs to top-level module dir and generate module links
+        mv ./docs/Rx/Rx/index.html ./docs/Rx/
+        sed -i -E "s/([a-zA-Z_]*) = ([a-zA-Z_-]*)/\1 = <a href=\"\.\/\2\">\2<\/a>/g" ./docs/Rx/index.html
+        # adjust css-related links
+        sed -i -E "s/\.\.\/odoc/odoc/g" ./docs/Rx/index.html
+        sed -i -E "s/\.\.\/highlight/highlight/g" ./docs/Rx/index.html
+    - name: deploy docs to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@2.0.3
+      env:
+        ACCESS_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
+        BASE_BRANCH: master
+        BRANCH: gh-pages
+        FOLDER: docs

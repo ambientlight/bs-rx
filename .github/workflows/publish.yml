@@ -1,0 +1,36 @@
+name: Publish to NPM
+on:
+  push:
+    tags:
+      - 0.*
+      - 1.*
+
+jobs:
+  buildAndPublish:
+    name: test and deploy to npm
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build, test
+      run: |
+        npm install
+        npm run build
+        npm run test
+      env:
+        CI: true
+    - name: npm publish
+      run:  |
+        echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_PUBLISH_TOKEN }}" > ~/.npmrc
+        npm publish
+      env: 
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+        

@@ -28,7 +28,6 @@
     "devDependencies": {
         "@glennsl/bs-jest": "^0.4.9",
         "bs-mocha": "^1.0.0",
-        "bs-platform": "7.0.2-dev.1",
         "jest": "^24.9.0"
     },
     "dependencies": {

@@ -8,3 +8,4 @@ npm-debug.log
 /docs/PIXI/
 /bsdoc/
 .tgz
+package-lock.json
