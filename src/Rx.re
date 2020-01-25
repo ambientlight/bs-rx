@@ -10,6 +10,7 @@ module ConnectableObservable = Rx_ConnectableObservable;
 
 include Rx_Observable;
 include Rx_Types;
+include Rx_Utils;
 
 /**
   Asap Scheduler

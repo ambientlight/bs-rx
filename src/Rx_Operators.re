@@ -14,10 +14,10 @@ type operator('a, 'b) = t('a) => t('b);
 [@bs.module "rxjs/operators"]
 external audit:
   (
-    ~durationSelector: [@bs.unwrap] [
-                         | `Subscribable('a => t('a))
-                         | `Promise('a => Js.Promise.t('a))
-                       ]
+    [@bs.unwrap] [
+      | `Subscribable('a => t('a))
+      | `Promise('a => Js.Promise.t('a))
+    ]
   ) =>
   operator('a, 'a) =
   "audit";
@@ -32,7 +32,7 @@ external audit:
  */
 [@bs.module "rxjs/operators"]
 external auditTime:
-  (~duration: float, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) =
+  (~duration: int, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) =
   "auditTime";
 
 /**
@@ -141,7 +141,7 @@ external combineAll: unit => operator(t('a), array('a)) = "combineAll";
 external _combineAllProject: (. (array('a) => 'r)) => operator(t('a), 'r) =
   "combineAll";
 
-type projectFn('a, 'r) = array('a) => 'r;
+type projectFn('a, 'r) = 'a => 'r;
 
 /**
   Flattens an Observable-of-Observables by applying {@link combineLatest} when the Observable-of-Observables completes.
@@ -155,9 +155,8 @@ type projectFn('a, 'r) = array('a) => 'r;
     @param project function to map the most recent values from each inner Observable into a new result.
     @see combineAll
  */
-let combineAllProject: projectFn('a, 'r) => operator(t('a), 'r) =
-  (project: projectFn('a, 'r)) => {
-    let _makeVariadic: (. projectFn('a, 'r)) => projectFn('a, 'r) = [%bs.raw
+let combineAllProject: projectFn(array('a), 'r) => operator(t('a), 'r) = (project: projectFn(array('a), 'r)) => {
+    let _makeVariadic: (. projectFn(array('a), 'r)) => projectFn(array('a), 'r) = [%bs.raw
       {|function(fn) {
     return function(){
       return fn([].slice.call(arguments))
@@ -173,11 +172,11 @@ let combineAllProject: projectFn('a, 'r) => operator(t('a), 'r) =
   Converts a higher-order Observable into a first-order Observable
   by concatenating the inner Observables in order.
 
-   Joins every Observable emitted by the source (a higher-order Observable), in a serial fashion.
-   It subscribes to each inner Observable only after the previous inner Observable has completed,
-   and merges all of their values into the returned observable.
+  Joins every Observable emitted by the source (a higher-order Observable), in a serial fashion.
+  It subscribes to each inner Observable only after the previous inner Observable has completed,
+  and merges all of their values into the returned observable.
 
-   @return An Observable emitting values from all the inner Observables concatenated.
+    @return An Observable emitting values from all the inner Observables concatenated.
  */
 [@bs.module "rxjs/operators"]
 external concatAll: unit => operator(t('a), 'a) = "concatAll";
@@ -1090,60 +1089,321 @@ external switchMapTo: ([@bs.unwrap] [
   | `Array( array('a))
 ]) => operator('b, 'a) = "switchMapTo";
 
-/* OPERATOR: take */
+/**
+  Emits only the first `count` values emitted by the source Observable.
+
+    @param count The maximum number of `next` values to emit.
+    @return An Observable that emits only the first `count` values emitted by the source Observable, or all of the values from the source if the source emits fewer than `count` values.
+ */
 [@bs.module "rxjs/operators"] external take: int => operator('a, 'a) = "take";
 
-/* OPERATOR: takeLast */
+/**
+  Emits only the last `count` values emitted by the source Observable.
+
+    @param count The maximum number of values to emit from the end of the sequence of values emitted by the source Observable.
+    @return An Observable that emits at most the last count values emitted by the source Observable.
+ */
 [@bs.module "rxjs/operators"]
 external takeLast: int => operator('a, 'a) = "takeLast";
 
-/* OPERATOR: takeUntil */
-[@bs.module "rxjs/operators"]
-external takeUntil: t('any) => operator('a, 'a) = "takeUntil";
+/**
+  Emits the values emitted by the source Observable until a `notifier` Observable emits a value.
 
-/* OPERATOR: takeWhite */
+  Lets values pass until a second Observable, `notifier`, emits a value. Then, it completes.
+
+    @param notifier The Observable whose first emitted value will cause the output Observable of `takeUntil` to stop emitting values from the source Observable.
+    @return An Observable that emits the values from the source Observable until such time as `notifier` emits its first value.
+ */
+[@bs.module "rxjs/operators"]
+external takeUntil: t('n) => operator('a, 'a) = "takeUntil";
+
+/**
+  Emits values emitted by the source Observable so long as each value satisfies
+  the given `predicate`, and then completes as soon as this `predicate` is not
+  satisfied.
+
+    @param predicate A function that evaluates a value emitted by the source Observable and returns a boolean. Also takes the (zero-based) index as the second argument.
+    @param inclusive When set to `true` the value that caused `predicate` to return `false` will also be emitted.
+    @return An Observable that emits the values from the source Observable so long as each value satisfies the condition defined by the `predicate`, then completes.
+ */
 [@bs.module "rxjs/operators"]
 external takeWhile:
-  ([@bs.uncurry] (('a, int) => bool), ~inclusive: bool=?, unit) =>
-  operator('a, 'a) =
-  "takeWhile";
-
-/* OPERATOR: tap */
-[@bs.module "rxjs/operators"]
-external tap: ('a => unit) => operator('a, 'a) = "tap";
+  ([@bs.uncurry] (('a, int) => bool), ~inclusive: bool=?, unit) => operator('a, 'a) = "takeWhile";
 
 [@bs.module "rxjs/operators"]
-external tapObserver: Rx_Types.Observer.t('a, 'e) => operator('a, 'a) =
-  "tap";
+external _tap: (
+  ~next: [@bs.uncurry]('a => unit), 
+  ~error: [@bs.uncurry]('e => unit), 
+  ~complete: [@bs.uncurry](unit => unit),
+) => operator('a, 'a) = "tap";
 
-/* OPERATOR: timeout */
+/**
+  Perform a side effect for every emission on the source Observable, but return an Observable that is identical to the source.
+
+  Intercepts each emission on the source and runs a
+  function, but returns an output which is identical to the source as long as errors don't occur.
+
+    @param next a callback for `next`.
+    @param error Callback for errors in the source.
+    @param complete Callback for the completion of the source.
+    @return An Observable identical to the source, but runs the specified callback(s) for each item.
+ */
+let tap = (~next=_val=>(), ~error=_err=>(), ~complete=()=>(), ()) => _tap(~next, ~error, ~complete);
+
+/**
+  Perform a side effect for every emission on the source Observable, but return an Observable that is identical to the source.
+
+  Intercepts each emission on the source and runs a
+  function, but returns an output which is identical to the source as long as errors don't occur.
+
+    @param observer A normal Observer object
+    @return An Observable identical to the source, but runs the specified Observer for each item.
+ */
 [@bs.module "rxjs/operators"]
-external timeout: int => operator('a, 'a) = "timeout";
+external tapObserver: Rx_Types.Observer.t('a, 'e) => operator('a, 'a) = "tap";
+
+/**
+  Emits a value from the source Observable, then ignores subsequent source
+  values for a duration determined by another Observable, then repeats this
+  process.
+
+    @param durationSelector A function that receives a value from the source Observable, for computing the silencing duration for each source value, returned as an Observable or a Promise.
+    @param config a configuration object to define `leading` and `trailing` behavior. Defaults to { leading: true, trailing: false}.
+    @return An Observable that performs the throttle operation to limit the rate of emissions from the source.
+ */
+[@bs.module "rxjs/operators"]
+external throttle: (
+  [@bs.unwrap] [`Subscribable('a => t('a)) | `Promise('a => Js.Promise.t('a))],
+  ~config: Rx_Types.ThrottleConfig.t=?,
+  unit
+) => operator('a, 'a) = "throttle";
+
+/**
+  Emits a value from the source Observable, then ignores subsequent source
+  values for `duration` milliseconds, then repeats this process.
+
+  Lets a value pass, then ignores source values for the next `duration` milliseconds.
+
+    @param duration Time to wait before emitting another value after emitting the last value, measured in milliseconds or the time unit determined internally by the optional `scheduler`.
+    @param The Scheduler to use for managing the timers that handle the throttling.
+    @param config a configuration object to define `leading` and `trailing` behavior. Defaults to { leading: true, trailing: false}.
+    @return An Observable that performs the throttle operation to limit the rate of emissions from the source.
+ */
+[@bs.module "rxjs/operators"]
+external throttleTime: (
+  ~duration: int, 
+  ~scheduler: Rx_Scheduler.t=?,
+  ~config: Rx_Types.ThrottleConfig.t=?, 
+  unit
+) => operator('a, 'a) = "throttleTime";
+
+/**
+  If the source observable completes without emitting a value, it will emit
+  an error. The error will be created at that time by the `errorFactor` argument
+
+    @param A factory function called to produce the error to be thrown when the source observable completes without emitting a value.
+ */
+[@bs.module "rxjs/operators"]
+external throwIfEmpty: ([@bs.uncurry](unit => 'err)) => operator('a, 'a) = "throwIfEmpty";
+
+/**
+  Emits an object containing the current value, and the time that has
+  passed between emitting the current value and the previous value, which is
+  calculated by using the provided `scheduler`'s `now()` method to retrieve
+  the current time at each emission, then calculating the difference. The `scheduler`
+  defaults to syncScheduler, so by default, the `interval` will be in milliseconds.
+
+    @param scheduler Scheduler used to get the current time.
+    @return Observable that emit infomation about value and interval
+ */
+[@bs.module "rxjs/operators"]
+external timeInterval: (~scheduler: Rx_Scheduler.t=?, unit) => operator('a, Rx_Types.TimeInterval.t('a)) = "timeInterval"; 
+
+/**
+  Errors if Observable does not emit a value in given time span.
+  Timeouts on Observable that doesn't emit values fast enough.
+
+    @param due Number specifying period within which Observable must emit values or Date specifying before when Observable should complete
+    @param scheduler Scheduler controlling when timeout checks occur.
+    @return Observable that mirrors behaviour of source, unless timeout checks fail.
+ */
+[@bs.module "rxjs/operators"]
+external timeout: (
+  [@bs.unwrap][ `Number(int) | `Date(Js.Date.t)],
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => operator('a, 'a) = "timeout";
+
+/**
+  Errors if Observable does not emit a value in given time span, in case of which
+  subscribes to the second Observable.
+
+  It's a version of `timeout` operator that let's you specify fallback Observable.
+
+    @param due Number specifying period within which Observable must emit values or Date specifying before when Observable should complete
+    @param withObservable Observable which will be subscribed if source fails timeout check.
+    @return Observable that mirrors behaviour of source or, when timeout check fails, of an Observable passed as a second parameter.
+ */
+[@bs.module "rxjs/operators"]
+external timeoutWith: (
+  ~due: [@bs.unwrap][ `Number(int) | `Date(Js.Date.t)],
+  ~withObservable: [@bs.unwrap] [
+    | `Observable(t('a))
+    | `Promise(Js.Promise.t('a))
+    | `Array( array('a))
+  ],
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => operator('a, 'a) = "timeoutWith";
+
+/**
+  Attaches a timestamp to each item emitted by an observable indicating when it was emitted
+
+  The `timestamp` operator maps the *source* observable stream to an object of type
+  `{value: T, timestamp: R}`. The properties are generically typed. The `value` property contains the value
+  and type of the *source* observable. The `timestamp` is generated by the schedulers `now` function. By
+  default it uses the *async* scheduler which simply returns `Date.now()`
+  (milliseconds since 1970/01/01 00:00:00:000) and therefore is of type `number`.
+ */
+[@bs.module "rxjs/operators"]
+external timestamp: (
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => operator('a, Rx_Types.Timestamp.t('a)) = "timestamp";
+
+/**
+  Collects all source emissions and emits them as an array when the source completes.
+
+    @return An array from an observable sequence.
+ */
+[@bs.module "rxjs/operators"]
+external toArray: unit => operator('a, array('a)) = "toArray";
+
+/**
+  Branch out the source Observable values as a nested Observable whenever `windowBoundaries` emits.
+
+    @param windowBoundaries An Observable that completes the previous window and starts a new window.
+    @return An Observable of windows, which are Observables emitting values of the source Observable.
+ */
+[@bs.module "rxjs/operators"]
+external window: t('n) => operator('a, t('a)) = "window";
+
+/**
+  Branch out the source Observable values as a nested Observable with each
+  nested Observable emitting at most `windowSize` values.
+
+  It's like bufferCount, but emits a nested Observable instead of an array.
+
+    @param windowSize The maximum number of values emitted by each window.
+    @return An Observable of windows, which in turn are Observable of values.
+ */
+[@bs.module "rxjs/operators"]
+external windowCount: (int, ~startWindowEvery: int=?, unit) => operator('a, t('a)) = "windowCount";
+
+/**
+  Branch out the source Observable values as a nested Observable periodically in time.
+  
+  It's like bufferTime, but emits a nested Observable instead of an array.
+
+    @param windowTimeSpan The amount of time to fill each window.
+    @param windowCreationInterval The interval at which to start new windows.
+    @param maxWindowSize Max number of values each window can emit before completion.
+    @param scheduler The scheduler on which to schedule the intervals that determine window boundaries.
+    @return An observable of windows, which in turn are Observables.
+ */
+[@bs.module "rxjs/operators"]
+external windowTime: (
+  ~windowTimeSpan: int,
+  ~windowCreationTimeInterval: int,
+  ~maxWindowSize: int,
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => operator('a, t('a)) = "windowTime";
+
+/**
+  Branch out the source Observable values as a nested Observable starting from
+  an emission from `openings` and ending when the output of `closingSelector` emits.
+
+  It's like bufferToggle, but emits a nested Observable instead of an array.
+
+    @param openings An observable of notifications to start new windows.
+    @param closingSelector A function that takes the value emitted by the `openings` observable and returns an Observable, which, when it emits (either `next` or `complete`), signals that the associated window should complete.
+    @return An observable of windows, which in turn are Observables.
+ */
+[@bs.module "rxjs/operators"]
+external windowToggle: (
+  ~opening: t('o),
+  ~closingSelector: [@bs.uncurry]('o => t('s))
+) => operator('a, t('a)) = "windowToggle";
+
+/**
+  Branch out the source Observable values as a nested Observable using a
+  factory function of closing Observables to determine when to start a new window.
+
+    @param closingSelector A function that takes no arguments and returns an Observable that signals (on either `next` or `complete`) when to close the previous window and start a new one.
+    @return An observable of windows, which in turn are Observables.
+ */
+[@bs.module "rxjs/operators"]
+external windowWhen: ([@bs.uncurry]('o => t('s))) => operator('a, t('a)) = "windowWhen";
+
+/**
+  Combines the source Observable with other Observables to create an Observable
+  whose values are calculated from the latest values of each, only when the source emits.
+
+    @param other An input Observable array to combine with the source Observable.
+    An Observable of projected values from the most recent values from each input Observable, or an array of the most recent values from each input Observable.
+ */
+[@bs.module "rxjs/operators"][@bs.variadic]
+external withLatestFrom: array(t('a)) => operator('a, array('a)) = "withLatestFrom";
+[@bs.module "rxjs/operators"]
+external withLatestFrom2: t('b) => operator('a, ('a, 'b)) = "withLatestFrom";
+[@bs.module "rxjs/operators"]
+external withLatestFrom3: (t('b), t('c)) => operator('a, ('a, 'b, 'c)) = "withLatestFrom";
+[@bs.module "rxjs/operators"]
+external withLatestFrom4: (t('b), t('c), t('d)) => operator('a, ('a, 'b, 'c, 'd)) = "withLatestFrom";
+[@bs.module "rxjs/operators"]
+external withLatestFrom5: (t('b), t('c), t('d), t('e)) => operator('a, ('a, 'b, 'c, 'd, 'e)) = "withLatestFrom";
+[@bs.module "rxjs/operators"]
+external withLatestFrom6: (t('b), t('c), t('d), t('e), t('f)) => operator('a, ('a, 'b, 'c, 'd, 'e, 'f)) = "withLatestFrom";
+[@bs.module "rxjs/operators"]
+external withLatestFrom7: (t('b), t('c), t('d), t('e), t('f), t('g)) => operator('a, ('a, 'b, 'c, 'd, 'e, 'f, 'g)) = "withLatestFrom";
+[@bs.module "rxjs/operators"]
+external withLatestFrom8: (t('b), t('c), t('d), t('e), t('f), t('g), t('h)) => operator('a, ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h)) = "withLatestFrom";
 
 [@bs.module "rxjs/operators"]
-external timeoutByDate: Js.Date.t => operator('a, 'a) = "timeout";
-
-/* OPERATOR: withLatestFrom */
-[@bs.module "rxjs/operators"]
-external withLatestFrom2: t('b) => operator('a, ('a, 'b)) =
-  "withLatestFrom";
+external zipAll: unit => operator(t('a), array('a)) = "zipAll";
 
 [@bs.module "rxjs/operators"]
-external withLatestFrom3: (t('b), t('c)) => operator('a, ('a, 'b, 'c)) =
-  "withLatestFrom";
+external zipAllPromise: unit => operator(Js.Promise.t('a), array('a)) = "zipAll";
 
 [@bs.module "rxjs/operators"]
-external withLatestFrom4:
-  (t('b), t('c), t('d)) => operator('a, ('a, 'b, 'c, 'd)) =
-  "withLatestFrom";
+external _zipAllProject: (. (array('a) => 'r)) => operator(t('a), 'r) = "zipAll";
+
+let zipAllProject = (project: projectFn(array('a),'r)) => {
+  let _makeVariadic: (. projectFn(array('a),'r)) => projectFn(array('a),'r) = [%bs.raw{|
+    function(fn) {
+      return function(){
+        return fn([].slice.call(arguments))
+      }
+    }
+  |}];
+
+  let _project = _makeVariadic(. project);
+  _zipAllProject(. _project);
+};
 
 [@bs.module "rxjs/operators"]
-external withLatestFrom5:
-  (t('b), t('c), t('d), t('e)) => operator('a, ('a, 'b, 'c, 'd, 'e)) =
-  "withLatestFrom";
+external _zipAllPromiseProject: (. (array('a) => 'r)) => operator(Js.Promise.t('a), 'r) = "zipAll";
 
-[@bs.module "rxjs/operators"]
-external withLatestFrom6:
-  (t('b), t('c), t('d), t('e), t('f)) =>
-  operator('a, ('a, 'b, 'c, 'd, 'e, 'f)) =
-  "withLatestFrom";
+let zipAllPromiseProject = (project: projectFn(array('a),'r)) => {
+  let _makeVariadic: (. projectFn(array('a),'r)) => projectFn(array('a),'r) = [%bs.raw{|
+    function(fn) {
+      return function(){
+        return fn([].slice.call(arguments))
+      }
+    }
+  |}];
+
+  let _project = _makeVariadic(. project);
+  _zipAllPromiseProject(. _project);
+};  

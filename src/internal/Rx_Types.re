@@ -14,3 +14,27 @@ module Observer = {
     [@bs.optional] complete: unit => unit
   };
 };
+
+module ThrottleConfig = {
+  [@bs.deriving abstract]
+  type t = {
+    [@bs.optional] leading: bool,
+    [@bs.optional] trailing: bool
+  };
+}
+
+module TimeInterval = {
+  [@bs.deriving abstract]
+  type t('a) = {
+    value: 'a,
+    interval: float
+  };
+}
+
+module Timestamp = {
+  [@bs.deriving abstract]
+  type t('a) = {
+    value: 'a,
+    timestamp: float
+  };
+};
