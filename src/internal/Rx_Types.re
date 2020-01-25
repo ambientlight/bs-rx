@@ -5,6 +5,13 @@ module Unsubscribable = {
   } as 'a)
 };
 
+module TimestampProvider = {
+  type t('a) = Js.t({
+    ..
+    now: unit => int
+  } as 'a)
+};
+
 module Observer = {
   [@bs.deriving abstract]
   type t('a, 'e) = {

@@ -669,3 +669,23 @@ external scheduled: (
   An Observable that emits no items to the Observer and never completes.
  */
 [@bs.module "rxjs"][@bs.val] external never: Observable.t('a) = "NEVER";
+
+/**
+  An observable of animation frames
+  
+  Emits the the amount of time elapsed since subscription on each animation frame. Defaults to elapsed
+  milliseconds. Does not end on its own.
+  
+  Every subscription will start a separate animation loop. Since animation frames are always scheduled
+  by the browser to occur directly before a repaint, scheduling more than one animation frame synchronously
+  should not be much different or have more overhead than looping over an array of events during
+  a single animation frame. However, if for some reason the developer would like to ensure the
+  execution of animation-related handlers are all executed during the same task by the engine,
+  the `share` operator can be used.
+ 
+  This is useful for setting up animations with RxJS.
+
+    @param timestampProvider An object with a `now` method that provides a numeric timestamp
+ */
+[@bs.module "rxjs"]
+external animationFrames: (~timestampProvider: Rx_Types.TimestampProvider.t('o)=?, unit) => Observable.t(int) = "animationFrames";

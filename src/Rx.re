@@ -5,8 +5,12 @@ module Testing = Rx_Testing;
 module WebSocket = Rx_WebSocket;
 
 module Notification = Rx_Notification;
-module Subject = Rx_Subject;
 module ConnectableObservable = Rx_ConnectableObservable;
+
+module Subject = Rx_Subject;
+module BehaviorSubject = Rx_BehaviorSubject;
+module ReplaySubject = Rx_ReplaySubject;
+module AsyncSubject = Rx_AsyncSubject;
 
 include Rx_Observable;
 include Rx_Types;
