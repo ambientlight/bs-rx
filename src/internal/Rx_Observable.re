@@ -277,11 +277,6 @@ external defer: (
 ) => Observable.t('a) = "defer";
 
 /**
-  Creates an Observable that emits no items to the Observer and immediately emits a complete notification.
- */
-[@bs.module "rxjs"][@bs.val] external empty: Observable.t('a) = "EMPTY";
-
-/**
   Accepts an `Array` of ObservableInput or a dictionary `Object` of ObservableInput and returns
   an Observable that emits either an array of values in the exact same order as the passed array,
   or a dictionary of values in the same shape as the passed dictionary.
@@ -391,7 +386,6 @@ external fromEventPattern: (
     @param initialState Initial state.
     @param condition Condition to terminate generation (upon returning false).
     @param iterate Iteration step function.
-    @param resultSelector Selector function for results produced in the sequence.
     @param scheduler A Scheduler on which to run the generator loop. If not provided, defaults to emit immediately.
     @return Observable of generated sequence.
  */
@@ -400,14 +394,91 @@ external generate: (
   ~initialState: 's,
   ~condition: [@bs.uncurry]('s => bool),
   ~iterate: [@bs.uncurry]('s => 's),
-  ~resultSelector: [@bs.uncurry]('s => 't),
-  ~scheduler: Rx_Scheduler.t,
+  ~scheduler: Rx_Scheduler.t=?,
   unit
 ) => Observable.t('t) = "generate";
 
 /**
+  Decides at subscription time which Observable will actually be subscribed.
+  `If` statement for Observables.
+
+    @param condition Condition which Observable should be chosen.
+    @param trueObservable An Observable that will be subscribed if condition is true.
+    @param falseObservable An Observable that will be subscribed if condition is false.
+    @return Either first or second Observable, depending on condition
+ */
+[@bs.module "rxjs"]
+external iif: (
+  ~condition: [@bs.uncurry](unit => bool),
+  ~trueResult: [@bs.unwrap][
+    | `Observable(Observable.t('a))
+    | `Promise(Js.Promise.t('a))
+  ],
+  ~falseResult: [@bs.unwrap][
+    | `Observable(Observable.t('a))
+    | `Promise(Js.Promise.t('a))
+  ] 
+) => Observable.t('a) = "iif";
+
+/**
+  Creates an Observable that emits sequential numbers every specified
+  interval of time, on a specified Scheduler.
+
+  Emits incremental numbers periodically in time.
+
+    @param period The interval size in milliseconds (by default) or the time unit determined by the scheduler's clock.
+    @param scheduler The Scheduler to use for scheduling the emission of values, and providing a notion of "time".
+    @return Observable that emits a sequential number each time interval.
+ */
+[@bs.module "rxjs"]
+external interval: (
+  ~period: int,
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => Observable.t(int) = "interval";
+
+/**
+  Creates an output Observable which concurrently emits all values from every
+  given input Observable.
+
+  Flattens multiple Observables together by blending their values into one Observable.
+
+    @param observables Input Observables to merge together.
+    @return an Observable that emits items that are the result of every input Observable.
+ */
+[@bs.module "rxjs"][@bs.variadic]
+external merge: array(Observable.t('a))  => Observable.t('a) = "merge";
+
+//TODO: rxjs implementation won't accept undefined in merge. Rethink how to support ~conncurrent, ~scheduler
+
+[@bs.module "rxjs"]
+external merge2C: (Observable.t('a), Observable.t('a), ~concurrent: int)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge2S: (Observable.t('a), Observable.t('a), ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge2SC: (Observable.t('a), Observable.t('a), ~concurrent: int, ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge3C: (Observable.t('a), Observable.t('a), Observable.t('a), ~concurrent: int)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge3S: (Observable.t('a), Observable.t('a), Observable.t('a), ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge3SC: (Observable.t('a), Observable.t('a), Observable.t('a), ~concurrent: int, ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge4C: (Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), ~concurrent: int)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge4S: (Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge4SC: (Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), ~concurrent: int, ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge5C: (Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), ~concurrent: int)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge5S: (Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+[@bs.module "rxjs"]
+external merge5SC: (Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), Observable.t('a), ~concurrent: int, ~scheduler: Rx_Scheduler.t)  => Observable.t('a) = "merge";
+
+/**
   Converts the arguments to an observable sequence.
-  Unlike {@link from}, it does not do any flattening and emits each argument in whole as a separate `next` notification.
+  Unlike from, it does not do any flattening and emits each argument in whole as a separate `next` notification.
 
     @param A list of arguments you want to be emitted
     @return An Observable that emits the arguments described above and then completes
@@ -416,9 +487,185 @@ external generate: (
 
 /**
   Converts the arguments to an observable sequence.
-  Unlike {@link from}, it does not do any flattening and emits each argument in whole as a separate `next` notification.
+  Unlike from, it does not do any flattening and emits each argument in whole as a separate `next` notification.
 
     @param A list of arguments you want to be emitted
     @return An Observable that emits the arguments described above and then completes
  */
 [@bs.module "rxjs"] external of1: 'a => Observable.t('a) = "of";
+
+/**
+  When any of the provided Observable emits an complete or error notification, it immediately subscribes to the next one
+  that was passed.
+
+  Execute series of Observables no matter what, even if it means swallowing errors.
+
+    @param Observables passed as an array.
+    @return An Observable that concatenates all sources, one after the other, ignoring all errors, such that any error causes it to move on to the next source.
+ */
+[@bs.module "rxjs"][@bs.variadic]
+external onErrorResumeNext: array(Observable.t('a)) => Observable.t('a) = "onErrorResumeNext";
+
+/**
+  Convert JS object into an Observable of `[key, value]` pairs.
+
+    @param obj The object to inspect and turn into an Observable sequence.
+    @param scheduler An optional IScheduler to schedule when resulting Observable will emit values.
+    @return An observable sequence of [key, value] pairs from the object.
+ */
+[@bs.module "rxjs"]
+external pairs: (
+  Js.t({..}),
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => Observable.t((string, 'a)) = "pairs";
+
+/**
+  Splits the source Observable into two, one with values that satisfy a predicate, 
+  and another with values that don't satisfy the predicate
+
+    @param source source observable
+    @param predicate A function that evaluates each value emitted by the source Observable.
+    @return Observables tuple: one with values that passed the predicate, and another with values that did not pass the predicate.
+ */
+[@bs.module "rxjs"]
+external partition: (Observable.t('a), ('a, int) => bool) => (Observable.t('a), Observable.t('a)) = "partition";
+
+/**
+  Returns an observable that mirrors the first source observable to emit an item.
+  `race` returns an observable, that when subscribed to, subscribes to all source observables immediately.
+  As soon as one of the source observables emits a value, the result unsubscribes from the other sources.
+  The resulting observable will forward all notifications, including error and completion, from the "winning"
+  source observable.
+
+    @param observables sources used to race for which Observable emits first.
+    @return an Observable that mirrors the output of the first Observable to emit an item.
+ */
+[@bs.module "rxjs"][@bs.variadic]
+external race: array(Observable.t('a))  => Observable.t('a) = "race";
+
+/**
+  Creates an Observable that emits a sequence of numbers within a specified range.
+
+    @param start=0 The value of the first integer in the sequence.
+    @param count The number of sequential integers to generate.
+    @param scheduler A Scheduler to use for scheduling the emissions of the notifications.
+ */
+[@bs.module "rxjs"]
+external range: (
+  ~start: int=?,
+  ~count: int=?,
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => Observable.t(int) = "range";
+
+/**
+  Creates an Observable that emits no items to the Observer and immediately
+  emits an error notification.
+
+  Just emits 'error', and nothing else.
+
+    @param error The particular Error to pass to the error notification.
+    @param scheduler A Scheduler to use for scheduling the emission of the error notification.
+    @return An error Observable: emits only the error notification using the given error argument.
+ */
+[@bs.module "rxjs"]
+external throwError: (
+  'err,
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => Observable.t('a) = "throwError";
+
+/**
+  Creates an Observable that starts emitting after an `dueTime` and
+  emits ever increasing numbers after each `period` of time thereafter.
+
+  Its like index/interval, but you can specify when should the emissions start.
+
+    @param dueTime The initial delay time specified as a Date object or as an integer denoting milliseconds to wait before emitting the first value of `0`
+    @param period The period of time between emissions of the subsequent numbers.
+    @param The Scheduler to use for scheduling the emission of values, and providing a notion of "time"
+    @return An Observable that emits a `0` after the `dueTime` and ever increasing numbers after each `period` of time thereafter.
+ */
+[@bs.module "rxjs"]
+external timer: (
+  ~dueTime: [@bs.unwrap][`Int(int) | `Date(Js.Date.t)]=?,
+  ~period: int=?,
+  ~scheduler: Rx_Scheduler.t=?,
+  unit
+) => Observable.t(int) = "timer";
+
+/**
+  Creates an Observable that uses a resource which will be disposed at the same time as the Observable.
+
+  Use it when you catch yourself cleaning up after an Observable.
+
+    @param resourceFactory A function which creates any resource object that implements `unsubscribe` method.
+    @param observableFactory A function which creates an Observable, that can use injected resource object.
+    @return An Observable that behaves the same as Observable returned by `observableFactory`, but which - when completed, errored or unsubscribed - will also call `unsubscribe` on created resource object.
+ */
+[@bs.module "rxjs"]
+external using: (
+  ~resourceFactory: [@bs.unwrap][
+    | `Unsubscribable(unit => Unsubscribable.t('o))
+    | `Subscription(unit => Rx_Subscription.t)
+    | `Unit(unit => unit)
+  ],
+  ~observableFactory: [@bs.unwrap][
+    | `Unsubscribable(Unsubscribable.t('o) => Observable.t('a))
+    | `Subscription(Rx_Subscription.t => Observable.t('a))
+    | `Unit(unit => Observable.t('a))
+  ]
+) => Observable.t('a) = "using";
+
+/**
+  Combines multiple Observables to create an Observable whose values are calculated from the values, 
+  in order, of each of its input Observables.
+
+    @param observables Observables to zip
+    @return Observable
+ */
+[@bs.module "rxjs"][@bs.variadic]
+external zip: array(Observable.t('a)) => Observable.t(array('a)) = "zip";
+[@bs.module "rxjs"]
+external zip2: (Observable.t('b), Observable.t('c)) => Observable.t(('b, 'c)) = "zip";
+[@bs.module "rxjs"]
+external zip3: (Observable.t('b), Observable.t('c), Observable.t('d)) => Observable.t(('b, 'c, 'd)) = "zip";
+[@bs.module "rxjs"]
+external zip4: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e)) => Observable.t(('b, 'c, 'd, 'e)) = "zip";
+[@bs.module "rxjs"]
+external zip5: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f)) => Observable.t(('b, 'c, 'd, 'e, 'f)) = "zip";
+[@bs.module "rxjs"]
+external zip6: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g)) = "zip";
+[@bs.module "rxjs"]
+external zip7: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g), Observable.t('h)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g, 'h)) = "zip";
+[@bs.module "rxjs"]
+external zip8: (Observable.t('b), Observable.t('c), Observable.t('d), Observable.t('e), Observable.t('f), Observable.t('g), Observable.t('h), Observable.t('i)) => Observable.t(('b, 'c, 'd, 'e, 'f, 'g, 'h, 'i)) = "zip";
+
+/**
+  Converts from a common type to an observable where subscription and emissions
+  are scheduled on the provided scheduler.
+
+    @param input The observable, array, promise, iterable, etc you would like to schedule
+    @param scheduler The scheduler to use to schedule the subscription and emissions from the returned observable.
+    @return Observable
+ */
+[@bs.module "rxjs"]
+external scheduled: (
+  [@bs.unwrap][
+    | `Array(array('a))
+    | `Promise(Js.Promise.t('a))
+    | `Observable(Observable.t('a))
+  ],
+  ~scheduler: Rx_Scheduler.t
+) => Observable.t('a) = "scheduled";
+
+/**
+  Creates an Observable that emits no items to the Observer and immediately emits a complete notification.
+ */
+[@bs.module "rxjs"][@bs.val] external empty: Observable.t('a) = "EMPTY";
+
+/**
+  An Observable that emits no items to the Observer and never completes.
+ */
+[@bs.module "rxjs"][@bs.val] external never: Observable.t('a) = "NEVER";
