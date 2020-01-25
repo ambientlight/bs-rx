@@ -6,7 +6,7 @@
         "build": "bsb -make-world",
         "clean": "bsb -clean-world",
         "bsb": "bsb -make-world -w",
-        "docs": "bsdoc build -v --debug PIXI",
+        "docs": "bsdoc build -v --debug Rx",
         "test": "jest"
     },
     "repository": {
