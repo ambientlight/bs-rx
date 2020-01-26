@@ -21,6 +21,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
       run: |
+        npm install --global bs-platform@latest 
         npm install
         npm run build
         npm run test
