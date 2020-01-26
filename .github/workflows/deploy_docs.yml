@@ -51,6 +51,7 @@ jobs:
         rm -r ./__tests__
         mkdir __tests__
         # rebuild
+        export PATH=./node_modules/.bin:$PATH
         npm run clean
         npm run build
         

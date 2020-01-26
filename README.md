@@ -47,3 +47,5 @@ let obs = Rx.of1("I'm online")
 |> repeatWhenOnline
 |> Rx.Observable.subscribe(~next=x=>Js.log(x));
 ```
+
+Also, have a look at [OperatorTests](https://github.com/ambientlight/bs-rx/blob/master/__tests__/OperatorTests.re) for more usage examples.
