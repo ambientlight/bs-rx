@@ -18,9 +18,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, test
       run: |
-        npm install --global bs-platform@latest
-        npm link bs-platform
         npm install
+        npm install --save bs-platform@latest
+        export PATH=./node_modules/.bin:$PATH
         npm run build
         npm run test
       env:
