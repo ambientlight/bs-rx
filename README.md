@@ -55,6 +55,12 @@ Also, have a look at [OperatorTests](https://github.com/ambientlight/bs-rx/blob/
 You may find marble testing handy to test your rxjs logic. Marble string syntax allow your to specify rxjs events(such as emissions, subscription points) over virtual time that progresses by frames(denoted by `-`). You can use it to express the expected behavior of your observable sequences as strings and compare them with `Rx.Observable.t('a)` instances you are testing. You need to initialize `TestScheduler.t` with a function that can perform deep comparison (such as `BsMocha.Assert.deep_equal`), then put your marble tests inside `ts |> TestScheduler.run(_r => ...)`. Asynchronous operators usually take `~scheduler` parameter, pass `TestScheduler.t` instance to them. The next example illustrates it, also you may want to refer to rxjs [marble diagrams documentation](https://rxjs-dev.firebaseapp.com/guide/testing/marble-testing).
 
 ```reason
+open Jest;
+open Rx.Testing;
+open TestScheduler;
+
+//...
+
 test("timeInterval: should record the time interval between source elements", () => {
   let ts = TestScheduler.create(~assertDeepEqual=BsMocha.Assert.deep_equal);
   ts |> TestScheduler.run(_r => {
