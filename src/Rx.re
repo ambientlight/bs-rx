@@ -12,6 +12,9 @@ module BehaviorSubject = Rx_BehaviorSubject;
 module ReplaySubject = Rx_ReplaySubject;
 module AsyncSubject = Rx_AsyncSubject;
 
+module Subscription = Rx_Subscription;
+module Subscriber = Rx_Subscriber;
+
 include Rx_Observable;
 include Rx_Types;
 include Rx_Utils;
