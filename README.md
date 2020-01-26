@@ -90,7 +90,7 @@ npm run build
 npm run test
 ```
 
-You can also build docs via bsdocs. If you have cloned this repo, the pushes to master should spin the github actions workflow that rebuild the github pages docs with workflow available at [deploy_docs.yml](https://github.com/ambientlight/bs-rx/blob/master/.github/workflows/deploy_docs.yml). (You will need to set `GH_PAGES_TOKEN` for github pages deployment to work).
+You can also build docs via bsdocs. If you have forked this repo, the pushes to master should spin the github actions workflow that rebuild the github pages docs with workflow available at [deploy_docs.yml](https://github.com/ambientlight/bs-rx/blob/master/.github/workflows/deploy_docs.yml). (You will need to set `GH_PAGES_TOKEN` for github pages deployment to work).
 
 If you want to generate docs in local make sure you have opam installed with ocaml version matching the ocaml version used in your `bs-platform` (`4.02.3+buckle-master` for bs-platform@5.2.1).
 
