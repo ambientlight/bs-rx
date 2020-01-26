@@ -22,7 +22,7 @@ jobs:
     - name: npm install, build, and test
       run: |
         npm install
-        npm install --save bs-platform@latest
+        npm install --save bs-platform@6.2.1
         export PATH=./node_modules/.bin:$PATH
         npm run build
         npm run test
@@ -51,7 +51,6 @@ jobs:
         rm -r ./__tests__
         mkdir __tests__
         # rebuild
-        export PATH=./node_modules/.bin:$PATH
         npm run clean
         npm run build
         
