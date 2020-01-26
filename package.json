@@ -1,7 +1,7 @@
 {
     "name": "@ambientlight/bs-rx",
     "version": "0.1.4",
-    "description": "buckleScript bindings for RxJs v7",
+    "description": "bucklescript bindings for RxJs v7",
     "scripts": {
         "build": "bsb -make-world",
         "clean": "bsb -clean-world",
@@ -14,16 +14,19 @@
         "url": "git+https://github.com/ambientlight/bs-rx.git"
     },
     "keywords": [
-        "pixi",
+        "rxjs",
         "reason",
         "reasonml",
-        "bucklescript"
+        "bucklescript",
+        "promise",
+        "bindings"
     ],
     "author": "ambientlight",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/ambientlight/bs-rx/issues"
     },
+    "docs": "https://ambientlight.github.io/bs-rx",
     "homepage": "https://github.com/ambientlight/bs-rx#readme",
     "devDependencies": {
         "@glennsl/bs-jest": "^0.4.9",
