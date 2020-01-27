@@ -32,9 +32,8 @@ Rx.range(~start=1, ~count=200, ())
 ```reason
 Rx.of_([|"a", "b", "c"|])
 |> Rx.Operators.mergeMap(`Observable((x, _idx) => 
-  Rx.interval(~period=1000, ())
-  |> Rx.Operators.map((i, _idx) => string_of_int(i) ++ x)), 
-  ())
+  Rx.interval(~period=1000)
+  |> Rx.Operators.map((i, _idx) => string_of_int(i) ++ x)))
 |> Rx.Observable.subscribe(~next=x=>Js.log(x));
 ```
 
@@ -78,7 +77,7 @@ test("timeInterval: should record the time interval between source elements", ()
 
     let result = e1
     |> HotObservable.asObservable
-    |> Rx.Operators.timeInterval(~scheduler=ts|.TestScheduler.asScheduler, ())
+    |> Rx.Operators.timeInterval(~scheduler=ts|.TestScheduler.asScheduler)
     |> Rx.Operators.map((x, _idx) => x |. Rx.TimeInterval.intervalGet);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
