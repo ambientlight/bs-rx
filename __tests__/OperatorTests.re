@@ -1267,7 +1267,7 @@ describe("Operators", () => {
     ~hot=     "--1--2--3--|",
     ~expected="--1--2--3--|",
     ~subs=  [|"^----------!"|],
-    ~operator=Rx.Operators.tap(~next=_value => (), ()),
+    ~operator=Rx.Operators.tap(~next=_value => ()),
     ()
   );
 

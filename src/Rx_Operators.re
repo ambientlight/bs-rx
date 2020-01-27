@@ -1138,7 +1138,7 @@ external _tap: (
     @param complete Callback for the completion of the source.
     @return An Observable identical to the source, but runs the specified callback(s) for each item.
  */
-let tap = (~next=_val=>(), ~error=_err=>(), ~complete=()=>(), ()) => _tap(~next, ~error, ~complete);
+let tap = (~next=_val=>(), ~error=_err=>(), ~complete=()=>()) => _tap(~next, ~error, ~complete);
 
 /**
   Perform a side effect for every emission on the source Observable, but return an Observable that is identical to the source.
