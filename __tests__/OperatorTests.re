@@ -280,7 +280,7 @@ describe("Operators", () => {
       e1
       //FIXME: rxjs spec/operators/debounceTime-spec.ts due time is 20 units
       // is there different non-default frame duration set on TestScheduler there?
-      |> Rx.Operators.debounceTime(~dueTime=2., ~scheduler=ts |> TestScheduler.asScheduler, ())
+      |> Rx.Operators.debounceTime(~dueTime=2., ~scheduler=ts |> TestScheduler.asScheduler)
     )
     |> toBeObservable(expected)
   });
@@ -302,7 +302,7 @@ describe("Operators", () => {
 
     let result = e1 
     |> HotObservable.asObservable
-    |> Rx.Operators.delay(`Int(t), ~scheduler=ts |> TestScheduler.asScheduler, ());
+    |> Rx.Operators.delay(`Int(t), ~scheduler=ts |> TestScheduler.asScheduler);
 
     ts
     |> expectObservable(result)
@@ -336,8 +336,7 @@ describe("Operators", () => {
         let res = selector[idx^] |> ColdObservable.asObservable
         idx := idx^ + 1;
         res
-      }, 
-      ());
+      });
     
     ts |> expectObservable(result) |> toBeObservable(expected)
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(subs)
@@ -380,7 +379,7 @@ describe("Operators", () => {
     |> expectObservable(
       e1 
       |> HotObservable.asObservable
-      |> Rx.Operators.distinct())
+      |> Rx.Operators.distinct)
     |> toBeObservable(expected);
 
     ts
@@ -398,7 +397,7 @@ describe("Operators", () => {
     |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx_Operators.distinct(~keySelector=value => value mod 3, ()))
+      |> Rx_Operators.distinct(~keySelector=value => value mod 3))
     |> toBeObservable(expected, ~values);
 
     ts
@@ -417,7 +416,7 @@ describe("Operators", () => {
     |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx.Operators.distinct(~flushes=e2 |> HotObservable.asObservable, ()))
+      |> Rx.Operators.distinct(~flushes=e2 |> HotObservable.asObservable))
     |> toBeObservable(expected);
 
     ts
@@ -461,7 +460,7 @@ describe("Operators", () => {
     ts
     |> expectObservable(
       source |> HotObservable.asObservable
-      |> Rx_Operators.elementAt(2, ()))
+      |> Rx_Operators.elementAt(2))
     |> toBeObservable(expected)
 
     ts
@@ -635,7 +634,7 @@ describe("Operators", () => {
     ts |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx.Operators.first(()))
+      |> Rx.Operators.first)
     |> toBeObservable(expected);
 
     ts 
@@ -682,7 +681,7 @@ describe("Operators", () => {
     ~hot=     "--a----b--c--|",
     ~expected="-------------(c|)",
     ~subs=  [|"^------------!"|],
-    ~operator=Rx.Operators.last(()),
+    ~operator=Rx.Operators.last,
     ()
   );
 
@@ -750,7 +749,7 @@ describe("Operators", () => {
     },
     ~expected="--a--db--ec--f---|",
     ~subs= [|"^-------!---------"|],
-    ~operator=Rx.Operators.mergeAll(),
+    ~operator=Rx.Operators.mergeAll,
     ()
   );
 
@@ -767,7 +766,7 @@ describe("Operators", () => {
       e2 
       |> ColdObservable.asObservable
       |> Rx.Operators.map((i, _idx) => i * x)
-    ), ());
+    ));
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs);
@@ -781,7 +780,7 @@ describe("Operators", () => {
 
     let result = e1 
     |> HotObservable.asObservable
-    |> Rx.Operators.mergeMapTo(`Observable(e2|>ColdObservable.asObservable), ());
+    |> Rx.Operators.mergeMapTo(`Observable(e2|>ColdObservable.asObservable));
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values={"x": 10});
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
@@ -792,7 +791,7 @@ describe("Operators", () => {
     ~hot="--a--^--b--c--d--e--f--g--|",
     ~expected="---u--v--w--x--y--z--|",
     ~subs=  [|"^--------------------!"|],
-    ~operator=Rx.Operators.mergeScan(`Observable((acc, x, _idx) => Rx.of1(Array.concat([acc, [|x|]]))), ~seed=[||], ()),
+    ~operator=Rx.Operators.mergeScan(`Observable((acc, x, _idx) => Rx.of1(Array.concat([acc, [|x|]]))), ~seed=[||]),
     ~values={
       "u": [|"b"|],
       "v": [|"b", "c"|],
@@ -830,7 +829,7 @@ describe("Operators", () => {
     let sourceSubs =      [|"^--------------!"|];
     let multicasted = source 
     |> ColdObservable.asObservable
-    |> Rx.Operators.multicast(`SubjectFactory(() => Rx.Subject.create()), ());
+    |> Rx.Operators.multicast(`SubjectFactory(() => Rx.Subject.create()));
     let expected =    "--1-2---3-4--5-|";
 
     ts |> expectObservable(multicasted |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
@@ -847,7 +846,7 @@ describe("Operators", () => {
     ts |> expectObservable(
       e1 
       |> HotObservable.asObservable
-      |> Rx.Operators.observeOn(ts |> TestScheduler.asScheduler, ())) 
+      |> Rx.Operators.observeOn(ts |> TestScheduler.asScheduler)) 
     |> toBeObservable(expected);
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(sub);
   });
@@ -903,7 +902,7 @@ describe("Operators", () => {
     let sourceSubs =      [|"^--------------!"|];
     let published = source 
     |> ColdObservable.asObservable
-    |> Rx.Operators.publish();
+    |> Rx.Operators.publish;
     let expected =    "--1-2---3-4--5-|";
 
     ts |> expectObservable(published |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
@@ -945,7 +944,7 @@ describe("Operators", () => {
     let sourceSubs =      [|"^--------------!"|];
     let published = source 
     |> ColdObservable.asObservable
-    |> Rx.Operators.publishReplay(~bufferSize=1, ());
+    |> Rx.Operators.publishReplay(~bufferSize=1);
     let expected =          "--1-2---3-4--5-|";
 
     ts |> expectObservable(published |> Rx.ConnectableObservable.asObservable) |> toBeObservable(expected);
@@ -974,7 +973,7 @@ describe("Operators", () => {
     let sourceSubs =      [|"^--------------!"|];
     let published = source 
     |> ColdObservable.asObservable
-    |> Rx.Operators.publish()
+    |> Rx.Operators.publish
     |> Rx.Operators.refCount();
     let expected =          "--1-2---3-4--5-|";
 
@@ -989,7 +988,7 @@ describe("Operators", () => {
     ~subs=  [|"^-------!----------------",
               "--------^-------!-------",
               "----------------^-------!"|],
-    ~operator=Rx.Operators.repeat(~count=3, ()),
+    ~operator=Rx.Operators.repeat(~count=3),
     ()
   );
 
@@ -1012,7 +1011,7 @@ describe("Operators", () => {
     ~subs=  [|"^-------!----------------",
               "--------^-------!-------",
               "----------------^-------!"|],
-    ~operator=Rx.Operators.retry(~count=2, ()),
+    ~operator=Rx.Operators.retry(~count=2),
     ()
   );
 
@@ -1054,7 +1053,7 @@ describe("Operators", () => {
     |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx.Operators.sampleTime(7, ~scheduler=ts |> TestScheduler.asScheduler, ()))
+      |> Rx.Operators.sampleTime(7, ~scheduler=ts |> TestScheduler.asScheduler))
     |> toBeObservable(expected)
 
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
@@ -1088,7 +1087,7 @@ describe("Operators", () => {
     let sourceSubs =      [|"^--------------!"|];
     let shared = source 
     |> ColdObservable.asObservable
-    |> Rx.Operators.shareReplay();
+    |> Rx.Operators.shareReplay;
     let expected =    "--1-2---3-4--5-|";
 
     ts |> expectObservable(shared) |> toBeObservable(expected);
@@ -1103,7 +1102,7 @@ describe("Operators", () => {
     ts |> expectObservable(
       e1
       |> HotObservable.asObservable
-      |> Rx.Operators.single(()))
+      |> Rx.Operators.single)
     |> toBeObservable(expected, ~errorValue="Sequence contains more than one element");
 
     ts 
@@ -1172,7 +1171,7 @@ describe("Operators", () => {
     ts |> expectObservable(
       e1 
       |> HotObservable.asObservable
-      |> Rx.Operators.subscribeOn(ts |> TestScheduler.asScheduler, ())) 
+      |> Rx.Operators.subscribeOn(ts |> TestScheduler.asScheduler))
     |> toBeObservable(expected);
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(sub);
   });
@@ -1259,7 +1258,7 @@ describe("Operators", () => {
     ~hot=     "--1--2--3--4--5--|",
     ~expected="--1--2--3--|      ",
     ~subs=  [|"^----------!"|],
-    ~operator=Rx.Operators.takeWhile((x, _idx) => x < 4, ()),
+    ~operator=Rx.Operators.takeWhile((x, _idx) => x < 4),
     ()
   );
 
@@ -1285,7 +1284,7 @@ describe("Operators", () => {
     let expected = "         -a--------b-----c----|";
     let result = e1 
     |> HotObservable.asObservable
-    |> Rx.Operators.throttle(`Subscribable(_ => e2 |> ColdObservable.asObservable), ());
+    |> Rx.Operators.throttle(`Subscribable(_ => e2 |> ColdObservable.asObservable));
     ts 
     |> expectObservable(result) 
     |> toBeObservable(expected);
@@ -1305,7 +1304,7 @@ describe("Operators", () => {
     let expected = "   -a--------b-----c----|";
     let result = e1 
     |> HotObservable.asObservable
-    |> Rx.Operators.throttleTime(~duration=5, ~scheduler=ts |> asScheduler, ());
+    |> Rx.Operators.throttleTime(~duration=5, ~scheduler=ts |> asScheduler);
 
     ts 
     |> expectObservable(result)
@@ -1324,7 +1323,7 @@ describe("Operators", () => {
 
     let result = e1
     |> HotObservable.asObservable
-    |> Rx.Operators.timeInterval(~scheduler=ts|.TestScheduler.asScheduler, ())
+    |> Rx.Operators.timeInterval(~scheduler=ts|.TestScheduler.asScheduler)
     |> Rx.Operators.map((x, _idx) => x |. Rx.TimeInterval.intervalGet);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
@@ -1340,7 +1339,7 @@ describe("Operators", () => {
     
     let result = e1
     |> ColdObservable.asObservable
-    |> Rx.Operators.timeout(`Number(5), ~scheduler=ts|.TestScheduler.asScheduler, ());
+    |> Rx.Operators.timeout(`Number(5), ~scheduler=ts|.TestScheduler.asScheduler);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~errorValue=timeoutError);
     ts |> expectSubscriptions(e1 |> ColdObservable.subscriptions) |> toBeSubscriptions(e1subs);
@@ -1360,8 +1359,7 @@ describe("Operators", () => {
     |> Rx.Operators.timeoutWith(
       ~due=`Number(5), 
       ~withObservable=`Observable(e2 |> ColdObservable.asObservable),
-      ~scheduler=ts|.TestScheduler.asScheduler, 
-      ());
+      ~scheduler=ts|.TestScheduler.asScheduler);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~errorValue=timeoutError);
     ts |> expectSubscriptions(e1 |> ColdObservable.subscriptions) |> toBeSubscriptions(e1subs);
@@ -1376,7 +1374,7 @@ describe("Operators", () => {
 
     let result = e1
     |> HotObservable.asObservable
-    |> Rx.Operators.timestamp(~scheduler=ts|.TestScheduler.asScheduler, ())
+    |> Rx.Operators.timestamp(~scheduler=ts|.TestScheduler.asScheduler)
     |> Rx.Operators.map((x, _idx) => x |. Rx.Timestamp.timestampGet);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
@@ -1401,7 +1399,7 @@ describe("Operators", () => {
 
     let result = e1
     |> HotObservable.asObservable
-    |> Rx.Operators.timestamp(~scheduler=ts|.TestScheduler.asScheduler, ())
+    |> Rx.Operators.timestamp(~scheduler=ts|.TestScheduler.asScheduler)
     |> Rx.Operators.map((x, _idx) => x |. Rx.Timestamp.timestampGet);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
@@ -1440,7 +1438,7 @@ describe("Operators", () => {
 
     let result = source
     |> HotObservable.asObservable
-    |> Rx.Operators.windowCount(3, ());
+    |> Rx.Operators.windowCount(3);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
     ts |> expectSubscriptions(source |> HotObservable.subscriptions) |> toBeSubscriptions(sourceSubs);
@@ -1462,8 +1460,7 @@ describe("Operators", () => {
       ~windowTimeSpan=5,
       ~windowCreationTimeInterval=10,
       ~maxWindowSize=Js.Int.max,
-      ~scheduler=ts |> TestScheduler.asScheduler,
-      ()
+      ~scheduler=ts |> TestScheduler.asScheduler
     );
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);

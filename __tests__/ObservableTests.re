@@ -102,10 +102,7 @@ describe("Observable", () => {
       Rx.of1(x)
       |> Rx.Operators.delay(
         `Int(idx == 0 ? 0 : 2), 
-        ~scheduler=ts |> TestScheduler.asScheduler, 
-        ())
-      )
-    );
+        ~scheduler=ts |> TestScheduler.asScheduler)));
 
     let expected = "x-y-(z|)";
     ts |> expectObservable(e1) |> toBeObservable(expected, ~values={"x": 10, "y": 20, "z": 30})    
@@ -220,7 +217,7 @@ describe("Observable", () => {
     let e1 = Rx.range(~start=1, ~count=5, ())
     |> Rx.Operators.concatMap(`Observable((x, idx) => 
       Rx.of1(x)
-      |> Rx.Operators.delay(`Int(idx == 0 ? 0 : 2), ~scheduler=ts |> TestScheduler.asScheduler, ())
+      |> Rx.Operators.delay(`Int(idx == 0 ? 0 : 2), ~scheduler=ts |> TestScheduler.asScheduler)
     ));
 
     let expected = "a-b-c-d-(e|)";

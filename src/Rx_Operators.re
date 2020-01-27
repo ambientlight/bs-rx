@@ -294,7 +294,7 @@ external debounce:
  */
 [@bs.module "rxjs/operators"]
 external debounceTime:
-  (~dueTime: float, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) =
+  (~dueTime: float, ~scheduler: Rx_Scheduler.t=?) => operator('a, 'a) =
   "debounceTime";
 
 /**
@@ -318,8 +318,7 @@ external defaultIfEmpty: 'a => operator('a, 'a) = "defaultIfEmpty";
 external delay:
   (
     [@bs.unwrap] [ | `Int(int) | `Date(Js.Date.t)],
-    ~scheduler: Rx_Scheduler.t=?,
-    unit
+    ~scheduler: Rx_Scheduler.t=?
   ) =>
   operator('a, 'a) =
   "delay";
@@ -337,7 +336,6 @@ external delayWhen:
   (
     ~delayDurationSelector: [@bs.uncurry] (('a, int) => t('b)),
     ~subscriptionDelay: t('c)=?,
-    unit
   ) =>
   operator('a, 'a) =
   "delayWhen";
@@ -353,8 +351,7 @@ external dematerialize: unit => operator(Rx_Notification.t('a), 'a) =
 external _distinct:
   (
     ~keySelector: [@bs.uncurry] ('a => 'b),
-    ~flushes: Rx_Observable.Observable.t('f)=?,
-    unit
+    ~flushes: Rx_Observable.Observable.t('f)=?
   ) =>
   operator('a, 'a) =
   "distinct";
@@ -371,8 +368,8 @@ external _distinct:
     @param flushes Optional Observable for flushing the internal HashSet of the operator
     @return An Observable that emits items from the source Observable with distinct values
  */
-let distinct = (~keySelector=v => v, ~flushes=?, ()) =>
-  _distinct(~keySelector, ~flushes?, ());
+let distinct = (~keySelector=v => v, ~flushes=?) =>
+  _distinct(~keySelector, ~flushes?);
 
 [@bs.module "rxjs/operators"]
 external _distinctUntilChanged:
@@ -415,7 +412,7 @@ let distinctUntilKeyChanged = (~key, ~compare=(lhs, rhs) => lhs === rhs, ()) =>
     @return An Observable that emits a single item, if it is found.
  */
 [@bs.module "rxjs/operators"]
-external elementAt: (int, ~default: 'a=?, unit) => operator('a, 'a) =
+external elementAt: (int, ~default: 'a=?) => operator('a, 'a) =
   "elementAt";
 
 /**
@@ -525,8 +522,7 @@ external findIndex: ([@bs.uncurry] (('a, int, t('a)) => bool)) => operator('a, i
 [@bs.module "rxjs/operators"]
 external _first: (
   ~predicate: [@bs.uncurry](('a, int, t('a)) => bool),
-  ~defaultValue: 'b=?, 
-  unit
+  ~defaultValue: 'b=?
 ) => operator('a, 'b) = "first";
 
 /**
@@ -536,7 +532,7 @@ external _first: (
     @param The default value emitted in case no valid value was found on the source.
     @return An Observable of the first item that matches the condition
  */
-let first = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?, ()) => _first(~predicate, ~defaultValue?, ());
+let first = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?) => _first(~predicate, ~defaultValue?);
 
 /**
   Groups the items emitted by an Observable according to a specified criterion,
@@ -581,7 +577,7 @@ external isEmpty: unit => operator('a, bool) = "isEmpty";
 external _last: (
   ~predicate: [@bs.uncurry](('a, int, t('a)) => bool),
   ~defaultValue: 'b=?, 
-  unit
+  
 ) => operator('a, 'b) = "last";
 
 /**
@@ -591,7 +587,7 @@ external _last: (
     @param The default value emitted in case no valid value was found on the source.
     @return An Observable of the last item that matches the condition
  */
-let last = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?, ()) => _last(~predicate, ~defaultValue?, ());
+let last = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?) => _last(~predicate, ~defaultValue?);
 
 /**
   Applies a given `project` function to each value emitted by the source Observable
@@ -645,7 +641,7 @@ external maxWithComparer: ([@bs.uncurry] (('a, 'a) => float)) => operator('a, 'a
     @return {Observable} An Observable that emits values coming from all the inner Observables emitted by the source Observable.
  */
 [@bs.module "rxjs/operators"]
-external mergeAll: (~concurrent: int=?, unit) => operator(t('a), 'a) = "mergeAll";
+external mergeAll: (~concurrent: int=?, ) => operator(t('a), 'a) = "mergeAll";
 
 /**
   Projects each source value to an Observable which is merged in the output Observable.
@@ -661,8 +657,7 @@ external mergeMap: (
     | `Promise(('a, int) => Js.Promise.t('b))
     | `Array(('a, int) => array('b))
   ],
-  ~concurrent: int=?,
-  unit
+  ~concurrent: int=?
 ) => operator('a, 'b) = "mergeMap";
 
 /**
@@ -679,8 +674,7 @@ external mergeMapTo: (
     | `Promise(Js.Promise.t('b))
     | `Array( array('b))
   ],
-  ~concurrent: int=?, 
-  unit
+  ~concurrent: int=?
 ) => operator('a, 'b) = "mergeMapTo";
 
 /**
@@ -701,8 +695,7 @@ external mergeScan: (
     | `Array(('b, 'a, int) => array('b))
   ],
   ~seed: 'b,
-  ~concurrent: int=?,
-  unit
+  ~concurrent: int=?
 ) => operator('a, 'b) = "mergeScan";
 
 /**
@@ -735,8 +728,7 @@ external multicast: (
     | `Subject(Rx_Subject.t('a))
     | `SubjectFactory(unit => Rx_Subject.t('a))
   ],
-  ~selector: (t('a) => t('b))=?,
-  unit
+  ~selector: (t('a) => t('b))=?
 ) => unaryFunction(t('a), Rx_ConnectableObservable.t('a)) = "multicast";
 
 /**
@@ -752,7 +744,7 @@ external multicast: (
     @return Observable that emits the same notifications as the source Observable, but with provided scheduler.
  */
 [@bs.module "rxjs/operators"]
-external observeOn: (Rx_Scheduler.t, ~delay: int=?, unit) => operator('a, 'a) = "observeOn";
+external observeOn: (Rx_Scheduler.t, ~delay: int=?) => operator('a, 'a) = "observeOn";
 
 /**
   When any of the provided Observable emits an complete or error notification, it immediately subscribes to the next one
@@ -798,7 +790,7 @@ external partition: (('a, int) => bool) => unaryFunction(t('a), (t('a), t('a))) 
     @return A ConnectableObservable that upon connection causes the source Observable to emit items to its Observers
  */
 [@bs.module "rxjs/operators"]
-external publish: (~selector: (t('a) => t('b))=?, unit) => unaryFunction(t('a), Rx_ConnectableObservable.t('b)) = "publish";
+external publish: (~selector: (t('a) => t('b))=?) => unaryFunction(t('a), Rx_ConnectableObservable.t('b)) = "publish";
 
 [@bs.module "rxjs/operators"]
 external publishBehavior: 'a => unaryFunction(t('a), Rx_ConnectableObservable.t('a)) = "publishBehavior";
@@ -821,8 +813,7 @@ external publishReplay: (
   ~selectorOrScheduler: [@bs.unwrap][
     | `Selector(operator('a, 'b))
     | `Scheduler(Rx_Scheduler.t)
-  ]=?,
-  unit
+  ]=?
 ) => unaryFunction(t('a), Rx_ConnectableObservable.t('a)) = "publishReplay";
 
 /**
@@ -854,7 +845,7 @@ external refCount: unit => unaryFunction(Rx_ConnectableObservable.t('a), t('a)) 
     @return An Observable that will resubscribe to the source stream when the source stream completes, at most count times.
  */
 [@bs.module "rxjs/operators"]
-external repeat: (~count: int=?, unit) => operator('a, 'a) = "repeat";
+external repeat: (~count: int=?) => operator('a, 'a) = "repeat";
 
 /**
   Returns an Observable that mirrors the source Observable with the exception of a `complete`. If the source
@@ -877,7 +868,7 @@ external repeatWhen: ([@bs.uncurry](t('error) => t('n))) => operator('a, 'a) = "
     @return The source Observable modified with the retry logic.
  */
 [@bs.module "rxjs/operators"]
-external retry: (~count: int=?, unit) => operator('a, 'a) = "retry";
+external retry: (~count: int=?) => operator('a, 'a) = "retry";
 
 /**
   Returns an Observable that mirrors the source Observable with the exception of an `error`. If the source Observable
@@ -908,7 +899,7 @@ external sample: t('n) => operator('a, 'a) = "sample";
     @return An Observable that emits the results of sampling the values emitted by the source Observable at the specified time interval.
  */
 [@bs.module "rxjs/operators"]
-external sampleTime: (int, ~scheduler: Rx_Scheduler.t=?, unit) => operator('a, 'a) = "sampleTime";
+external sampleTime: (int, ~scheduler: Rx_Scheduler.t=?) => operator('a, 'a) = "sampleTime";
 
 /**
   Applies an accumulator function over the source Observable, and returns each
@@ -964,8 +955,7 @@ external share: unit => operator('a, 'a) = "share";
 external shareReplay: (
   ~bufferSize: int=?,
   ~windowTime: int=?,
-  ~scheduler: Rx_Scheduler.t=?,
-  unit
+  ~scheduler: Rx_Scheduler.t=?
 ) => operator('a, 'a) = "shareReplay";
 
 [@bs.module "rxjs/operators"]
@@ -981,7 +971,7 @@ external _single: (
   
   Like first, but emit with error notification if there is more than one value
  */
-let single = (~predicate=(_x, _idx, _src) => true, ()) => _single(~predicate);
+let single = (~predicate=(_x, _idx, _src) => true) => _single(~predicate);
 
 /**
   Returns an Observable that skips the first `count` items emitted by the source Observable.
@@ -1042,7 +1032,7 @@ external startWith: array('a) => operator('a, 'a) = "startWith";
     @return The source Observable modified so that its subscriptions happen on the specified Scheduler
  */
 [@bs.module "rxjs/operators"]
-external subscribeOn: (Rx_Scheduler.t, ~delay: int=?, unit) => operator('a, 'a) = "subscribeOn";
+external subscribeOn: (Rx_Scheduler.t, ~delay: int=?) => operator('a, 'a) = "subscribeOn";
 
 /**
   Converts a higher-order Observable into a first-order Observable
@@ -1128,7 +1118,7 @@ external takeUntil: t('n) => operator('a, 'a) = "takeUntil";
  */
 [@bs.module "rxjs/operators"]
 external takeWhile:
-  ([@bs.uncurry] (('a, int) => bool), ~inclusive: bool=?, unit) => operator('a, 'a) = "takeWhile";
+  ([@bs.uncurry] (('a, int) => bool), ~inclusive: bool=?) => operator('a, 'a) = "takeWhile";
 
 [@bs.module "rxjs/operators"]
 external _tap: (
@@ -1174,8 +1164,7 @@ external tapObserver: Rx_Types.Observer.t('a, 'e) => operator('a, 'a) = "tap";
 [@bs.module "rxjs/operators"]
 external throttle: (
   [@bs.unwrap] [`Subscribable('a => t('a)) | `Promise('a => Js.Promise.t('a))],
-  ~config: Rx_Types.ThrottleConfig.t=?,
-  unit
+  ~config: Rx_Types.ThrottleConfig.t=?
 ) => operator('a, 'a) = "throttle";
 
 /**
@@ -1193,8 +1182,7 @@ external throttle: (
 external throttleTime: (
   ~duration: int, 
   ~scheduler: Rx_Scheduler.t=?,
-  ~config: Rx_Types.ThrottleConfig.t=?, 
-  unit
+  ~config: Rx_Types.ThrottleConfig.t=?
 ) => operator('a, 'a) = "throttleTime";
 
 /**
@@ -1217,7 +1205,7 @@ external throwIfEmpty: ([@bs.uncurry](unit => 'err)) => operator('a, 'a) = "thro
     @return Observable that emit infomation about value and interval
  */
 [@bs.module "rxjs/operators"]
-external timeInterval: (~scheduler: Rx_Scheduler.t=?, unit) => operator('a, Rx_Types.TimeInterval.t('a)) = "timeInterval"; 
+external timeInterval: (~scheduler: Rx_Scheduler.t=?) => operator('a, Rx_Types.TimeInterval.t('a)) = "timeInterval"; 
 
 /**
   Errors if Observable does not emit a value in given time span.
@@ -1230,8 +1218,7 @@ external timeInterval: (~scheduler: Rx_Scheduler.t=?, unit) => operator('a, Rx_T
 [@bs.module "rxjs/operators"]
 external timeout: (
   [@bs.unwrap][ `Number(int) | `Date(Js.Date.t)],
-  ~scheduler: Rx_Scheduler.t=?,
-  unit
+  ~scheduler: Rx_Scheduler.t=?
 ) => operator('a, 'a) = "timeout";
 
 /**
@@ -1252,8 +1239,7 @@ external timeoutWith: (
     | `Promise(Js.Promise.t('a))
     | `Array( array('a))
   ],
-  ~scheduler: Rx_Scheduler.t=?,
-  unit
+  ~scheduler: Rx_Scheduler.t=?
 ) => operator('a, 'a) = "timeoutWith";
 
 /**
@@ -1267,8 +1253,7 @@ external timeoutWith: (
  */
 [@bs.module "rxjs/operators"]
 external timestamp: (
-  ~scheduler: Rx_Scheduler.t=?,
-  unit
+  ~scheduler: Rx_Scheduler.t=?
 ) => operator('a, Rx_Types.Timestamp.t('a)) = "timestamp";
 
 /**
@@ -1298,7 +1283,7 @@ external window: t('n) => operator('a, t('a)) = "window";
     @return An Observable of windows, which in turn are Observable of values.
  */
 [@bs.module "rxjs/operators"]
-external windowCount: (int, ~startWindowEvery: int=?, unit) => operator('a, t('a)) = "windowCount";
+external windowCount: (int, ~startWindowEvery: int=?) => operator('a, t('a)) = "windowCount";
 
 /**
   Branch out the source Observable values as a nested Observable periodically in time.
@@ -1316,8 +1301,7 @@ external windowTime: (
   ~windowTimeSpan: int,
   ~windowCreationTimeInterval: int,
   ~maxWindowSize: int,
-  ~scheduler: Rx_Scheduler.t=?,
-  unit
+  ~scheduler: Rx_Scheduler.t=?
 ) => operator('a, t('a)) = "windowTime";
 
 /**
