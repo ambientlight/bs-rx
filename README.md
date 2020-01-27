@@ -1,6 +1,6 @@
 [![STATUS](https://github.com/ambientlight/bs-rx/workflows/Deploy%20Docs/badge.svg)](https://github.com/ambientlight/bs-rx/actions)
 [![VERSION](https://img.shields.io/npm/v/@ambientlight/bs-rx)](https://www.npmjs.com/package/@ambientlight/bs-rx)
-[![LICENSE](https://img.shields.io/github/license/ambientlight/bs-rx)](https://github.com/ambientlight/bs-rx/blob/master/LICENSE)
+[![LICENSE](https://img.shields.io/github/license/ambientlight/bs-rx?t)](https://github.com/ambientlight/bs-rx/blob/master/LICENSE)
 [![ISSUES](https://img.shields.io/github/issues/ambientlight/bs-rx)](https://github.com/ambientlight/bs-rx/issues)
 
 # bs-rx
@@ -67,11 +67,11 @@ open TestScheduler;
 
 test("timeInterval: should record the time interval between source elements", () => {
   let ts = TestScheduler.create(~assertDeepEqual=BsMocha.Assert.deep_equal);
-  ts |> TestScheduler.run(_r => {
+  ts |> run(_r => {
     // subscribe in 6th frame, 4 emissions: b, c, d, e
     let e1 = ts |> hot("--a--^b-c-----d--e--|");
-    let e1subs =          [|"^--------------!"|];
-    let expected =          "-w-x-----y--z--|";
+    let e1subs =    [|"^--------------!"|];
+    let expected =    "-w-x-----y--z--|";
     // expected values in w, x, y, z emissions
     let values = { "w": 1, "x": 2, "y": 6, "z": 3 };
 
