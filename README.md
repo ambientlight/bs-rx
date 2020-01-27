@@ -68,17 +68,17 @@ open TestScheduler;
 
 test("timeInterval: should record the time interval between source elements", () => {
   let ts = TestScheduler.create(~assertDeepEqual=BsMocha.Assert.deep_equal);
-  ts |> TestScheduler.run(_r => {
+  ts |> run(_r => {
     // subscribe in 6th frame, 4 emissions: b, c, d, e
     let e1 = ts |> hot("--a--^b-c-----d--e--|");
-    let e1subs =          [|"^--------------!"|];
-    let expected =          "-w-x-----y--z--|";
+    let e1subs =    [|"^--------------!"|];
+    let expected =    "-w-x-----y--z--|";
     // expected values in w, x, y, z emissions
     let values = { "w": 1, "x": 2, "y": 6, "z": 3 };
 
     let result = e1
     |> HotObservable.asObservable
-    |> Rx.Operators.timeInterval(~scheduler=ts|.TestScheduler.asScheduler, ())
+    |> Rx.Operators.timeInterval(~scheduler=ts|.asScheduler, ())
     |> Rx.Operators.map((x, _idx) => x |. Rx.TimeInterval.intervalGet);
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);
