@@ -1,4 +1,4 @@
-[![STATUS](https://github.com/ambientlight/bs-rx/workflows/Deploy%20Docs/badge.svg?branch=master)](https://github.com/ambientlight/bs-rx/workflows/Deploy%20Docs/badge.svg?branch=master)
+[![STATUS](https://github.com/ambientlight/bs-rx/workflows/Deploy%20Docs/badge.svg)](https://github.com/ambientlight/bs-rx/actions)
 [![VERSION](https://img.shields.io/npm/v/@ambientlight/bs-rx)](https://www.npmjs.com/package/@ambientlight/bs-rx)
 [![LICENSE](https://img.shields.io/github/license/ambientlight/bs-rx)](https://github.com/ambientlight/bs-rx/blob/master/LICENSE)
 [![ISSUES](https://img.shields.io/github/issues/ambientlight/bs-rx)](https://github.com/ambientlight/bs-rx/issues)
