@@ -1,3 +1,8 @@
+[![STATUS](https://github.com/ambientlight/bs-rx/workflows/Deploy%20Docs/badge.svg?branch=master)](https://github.com/ambientlight/bs-rx/workflows/Deploy%20Docs/badge.svg?branch=master)
+[![VERSION](https://img.shields.io/npm/v/@ambientlight/bs-rx)](https://www.npmjs.com/package/@ambientlight/bs-rx)
+[![LICENSE](https://img.shields.io/github/license/ambientlight/bs-rx)](https://github.com/ambientlight/bs-rx/blob/master/LICENSE)
+[![ISSUES](https://img.shields.io/github/issues/ambientlight/bs-rx)](https://github.com/ambientlight/bs-rx/issues)
+
 # bs-rx
 Bucklescript bindings for [rxjs v7(alpha)](https://github.com/ReactiveX/rxjs)  
 Most functionality is available, while ajax / fetch / websocket apis are not yet done. Refer to [documentation](https://ambientlight.github.io/bs-rx) for existing coverage.
@@ -52,7 +57,7 @@ Also, have a look at [OperatorTests](https://github.com/ambientlight/bs-rx/blob/
 
 ## Testing
 
-You may find marble testing handy to test your rxjs logic. Marble string syntax allow your to specify rxjs events(such as emissions, subscription points) over virtual time that progresses by frames(denoted by `-`). You can use it to express the expected behavior of your observable sequences as strings and compare them with `Rx.Observable.t('a)` instances you are testing. You need to initialize `TestScheduler.t` with a function that can perform deep comparison (such as `BsMocha.Assert.deep_equal`), then put your marble tests inside `ts |> TestScheduler.run(_r => ...)`. Asynchronous operators usually take `~scheduler` parameter, pass `TestScheduler.t` instance to them. The next example illustrates it, also you may want to refer to rxjs [marble diagrams documentation](https://rxjs-dev.firebaseapp.com/guide/testing/marble-testing).
+You may find marble testing handy to test your rxjs logic. Marble string syntax allows you to specify rxjs events(such as emissions, subscription points) over virtual time that progresses by frames(denoted by `-`). You can use it to express the expected behavior of your observable sequences as strings and compare them with `Rx.Observable.t('a)` instances you are testing. You need to initialize `TestScheduler.t` with a function that can perform deep comparison (such as `BsMocha.Assert.deep_equal`), then put your marble tests inside `ts |> TestScheduler.run(_r => ...)`. Asynchronous operators usually take `~scheduler` parameter, pass `TestScheduler.t` instance to them. The next example illustrates it, also you may want to refer to rxjs [marble diagrams documentation](https://rxjs-dev.firebaseapp.com/guide/testing/marble-testing).
 
 ```reason
 open Jest;
