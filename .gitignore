@@ -9,3 +9,4 @@ npm-debug.log
 /bsdoc/
 .tgz
 package-lock.json
+.npmrc
