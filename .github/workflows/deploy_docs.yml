@@ -22,8 +22,8 @@ jobs:
     - name: npm install, build, and test
       run: |
         npm install
-        npm install --save bs-platform@5.2.1
-        export PATH=./node_modules/.bin:$PATH
+        npm install --global bs-platform@5.2.1
+        npm link bs-platform
         npm run build
         npm run test
       env:
