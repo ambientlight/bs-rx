@@ -549,11 +549,32 @@ let first = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?) => _first(~pr
 [@bs.module "rxjs/operators"]
 external groupBy: (
   ('a) => string,
-  //FIXME: groupBy won't like the next set as undefined when applied, those won't work with default values, so seperate functions are needed
+  //NOTE: groupBy won't like the next set as undefined when applied, those won't work with default values, so multiple functions below
   //~elementSelector: [@bs.uncurry]('a => 'b)=?,
   //~durationSelector: [@bs.uncurry](t('b) => t('c))=?,
   //~subjectSelector: [@bs.uncurry](unit => Rx_Subject.t('b))=?,
   //unit
+) => operator('a, t('b)) = "groupBy";
+
+[@bs.module "rxjs/operators"]
+external groupByWithElementSelector: (
+  ('a) => string,
+  ~elementSelector: [@bs.uncurry]('a => 'b),
+) => operator('a, t('b)) = "groupBy";
+
+[@bs.module "rxjs/operators"]
+external groupByWithElementDurationSelector: (
+  ('a) => string,
+  ~elementSelector: [@bs.uncurry]('a => 'b),
+  ~durationSelector: [@bs.uncurry](t('b) => t('c)),
+) => operator('a, t('b)) = "groupBy";
+
+[@bs.module "rxjs/operators"]
+external groupByWithElementDurationSubjectSelector: (
+  ('a) => string,
+  ~elementSelector: [@bs.uncurry]('a => 'b),
+  ~durationSelector: [@bs.uncurry](t('b) => t('c)),
+  ~subjectSelector: [@bs.uncurry](unit => Rx_Subject.t('b)),
 ) => operator('a, t('b)) = "groupBy";
 
 /**
