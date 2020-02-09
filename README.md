@@ -109,3 +109,7 @@ opam switch 4.02.3+buckle-master
 ```
 
 For osx, you can use the npm installation of bsdoc(corresponds to bs-platform 6), but for linux-based distros, you would need to build bsdoc from source for now.
+
+## See Also
+
+[reductive-observable](https://github.com/ambientlight/reductive-observable): Centalized rx side-effects for reductive.
