@@ -1,4 +1,8 @@
+type t('a);
+
 module Impl = (T: { type t('a); }) => {
+  external asSubject : T.t('a) => t('a) = "%identity";
+
   [@bs.get] external observers: T.t('a) => array(Rx_Types.Observer.t('a, 'e)) = "observers";
   [@bs.set] external setObservers: (T.t('a), array(Rx_Types.Observer.t('a, 'e))) => unit = "observers";
 
@@ -54,8 +58,6 @@ module Impl = (T: { type t('a); }) => {
   [@bs.send.pipe: T.t('a)] external asObservable: Rx_Observable.Observable.t('a) = "asObservable";
 };
 
-
-type t('a);
 
 include Rx_Observable.Observable.Impl({ type nonrec t('a) = t('a) });
 include Impl({ type nonrec t('a) = t('a) });

@@ -3,7 +3,7 @@ module Impl = (T: { type t('a); })  => {
   external create: (
     ~bufferSize: int=?,
     ~windowTime: int=?,
-    ~scheduler: Rx_Scheduler.t,
+    ~scheduler: Rx_Scheduler.t=?,
     unit
   ) => T.t('a) = "ReplaySubject";
 };
