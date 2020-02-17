@@ -13,9 +13,9 @@ Most functionality is available, while ajax / websocket apis are not yet done. R
 npm install @ambientlight/bs-rx reason-promise
 ```
 
-[reason-promise](https://github.com/aantron/promise) is a peer dependency
+[reason-promise](https://github.com/aantron/promise) and [bs-fetch](https://github.com/reasonml-community/bs-fetch) are peer dependencies
 
-Then add `@ambientlight/bs-rx` (and `reason-promise`) into `bs-dependencies` in your project `bsconfig.json`.
+Then add `@ambientlight/bs-rx` (and `reason-promise`, `bs-fetch`) into `bs-dependencies` in your project `bsconfig.json`.
 
 
 ```reason
@@ -57,7 +57,7 @@ let obs = Rx.of1("I'm online")
 #### Fetch
 
 ```reason
-fromFetch(`String("https://api.github.com/users?per_page=5"), ())
+Rx.Fetch.fromFetch(`String("https://api.github.com/users?per_page=5"), ())
 |> Rx.Operators.mergeMap(`Promise((response, _idx) => response |> Fetch.Response.json))
 |> Rx.Observable.subscribe(
   ~next=value => Js.log(value),
