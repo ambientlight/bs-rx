@@ -54,6 +54,18 @@ let obs = Rx.of1("I'm online")
 |> Rx.Observable.subscribe(~next=x=>Js.log(x));
 ```
 
+#### Fetch
+
+```reason
+fromFetch(`String("https://api.github.com/users?per_page=5"), ())
+|> Rx.Operators.mergeMap(`Promise((response, _idx) => response |> Fetch.Response.json))
+|> Rx.Observable.subscribe(
+  ~next=value => Js.log(value),
+  ~error=error=>Js.log(error),
+  ~complete=() => Js.log("done")
+);
+```
+
 Also, have a look at [OperatorTests](https://github.com/ambientlight/bs-rx/blob/master/__tests__/OperatorTests.re) for more usage examples.
 
 ## Promises

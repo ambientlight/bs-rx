@@ -1,6 +1,6 @@
 {
     "name": "@ambientlight/bs-rx",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "bucklescript bindings for RxJs v7",
     "scripts": {
         "build": "bsb -make-world",
@@ -30,6 +30,7 @@
     "homepage": "https://github.com/ambientlight/bs-rx#readme",
     "devDependencies": {
         "@glennsl/bs-jest": "^0.4.9",
+        "bs-fetch": "^0.5.1",
         "bs-mocha": "^1.0.0",
         "jest": "^24.9.0",
         "reason-promise": "^1.0.2"
@@ -38,6 +39,7 @@
         "rxjs": "^7.0.0-alpha.1"
     },
     "peerDependencies": {
-        "reason-promise": "^1.0.2"
+        "reason-promise": "^1.0.2",
+        "bs-fetch": "^0.5.1"
     }
 }

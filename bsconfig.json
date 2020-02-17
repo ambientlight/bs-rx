@@ -1,7 +1,7 @@
 {
   "name": "@ambientlight/bs-rx",
   "namespace": false,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "sources": [
     {
       "dir": "src",
@@ -16,7 +16,8 @@
   },
   "suffix": ".bs.js",
   "bs-dependencies": [
-    "reason-promise"
+    "reason-promise",
+    "bs-fetch"
   ],
   "bs-dev-dependencies": [
     "@glennsl/bs-jest",
