@@ -95,6 +95,14 @@ module Observable = {
     // TODO: ~promiseCtor: 
     [@bs.send.pipe: T.t('a)]
     external toPromise: Js.Promise.t('a) = "toPromise";
+
+  /**
+  Subscribe to this Observable and get a Promise resolving on `complete` with the last emission.
+
+    @return A Promise that resolves with the last value emit, or rejects on an error.    
+   */
+    [@bs.send.pipe: T.t('a)]
+    external toRepromise: Promise.t('a) = "toPromise";
   };
 
   include Impl({ type nonrec t('a) = t('a); });
@@ -272,6 +280,7 @@ external defer: (
   [@bs.unwrap] [
     | `Observable(unit => Observable.t('a))
     | `Promise(unit => Js.Promise.t('a))
+    | `Repromise(unit => Promise.t('a))
     | `Array(unit => array('a))
   ]
 ) => Observable.t('a) = "defer";
@@ -290,6 +299,7 @@ external defer: (
 external forkJoin: (
   [@bs.unwrap][
     | `PromiseArray(array(Js.Promise.t('a)))
+    | `RepromiseArray(array(Promise.t('a)))
     | `ObservableArray(array(Observable.t('a)))
     | `ArrayLikeArray(array(array('a)))
     | `Dict(Js.t({..}))
@@ -323,6 +333,7 @@ external from: (
   [@bs.unwrap][
     | `Array(array('a))
     | `Promise(Js.Promise.t('a))
+    | `Repromise(Promise.t('a))
     | `Observable(Observable.t('a))
     | `Subscription(Rx_Subscription.t)
   ],
@@ -413,10 +424,12 @@ external iif: (
   ~trueResult: [@bs.unwrap][
     | `Observable(Observable.t('a))
     | `Promise(Js.Promise.t('a))
+    | `Repromise(Promise.t('a))
   ],
   ~falseResult: [@bs.unwrap][
     | `Observable(Observable.t('a))
     | `Promise(Js.Promise.t('a))
+    | `Repromise(Promise.t('a))
   ] 
 ) => Observable.t('a) = "iif";
 

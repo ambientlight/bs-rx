@@ -10,10 +10,12 @@ Most functionality is available, while ajax / fetch / websocket apis are not yet
 ## Installation and Usage
 
 ```
-npm install @ambientlight/bs-rx
+npm install @ambientlight/bs-rx reason-promise
 ```
 
-Then add `@ambientlight/bs-rx` into `bs-dependencies` in your project `bsconfig.json`.
+[reason-promise](https://github.com/aantron/promise) is a peer dependency
+
+Then add `@ambientlight/bs-rx` (and `reason-promise`) into `bs-dependencies` in your project `bsconfig.json`.
 
 
 ```reason
@@ -53,6 +55,23 @@ let obs = Rx.of1("I'm online")
 ```
 
 Also, have a look at [OperatorTests](https://github.com/ambientlight/bs-rx/blob/master/__tests__/OperatorTests.re) for more usage examples.
+
+## Promises
+
+All bindings accepting promises come in two flavours: as `Js.Promise.t` (shipped with bucklescript) and `Promise.t` from [reason-promise](https://github.com/aantron/promise). For the later, use **\`Repromise** variant constructor.
+
+```reason
+[@bs.module "rxjs/operators"]
+external mergeMap: (
+  [@bs.unwrap] [
+    | `Observable(('a, int) => t('b))
+    | `Promise(('a, int) => Js.Promise.t('b))
+    | `Repromise(('a, int) => Promise.t('b))
+    | `Array(('a, int) => array('b))
+  ],
+  ~concurrent: int=?
+) => operator('a, 'b) = "mergeMap";
+```
 
 ## Testing
 

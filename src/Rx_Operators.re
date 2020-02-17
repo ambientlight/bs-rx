@@ -17,6 +17,7 @@ external audit:
     [@bs.unwrap] [
       | `Subscribable('a => t('a))
       | `Promise('a => Js.Promise.t('a))
+      | `Repromise('a => Promise.t('a))
     ]
   ) =>
   operator('a, 'a) =
@@ -92,10 +93,12 @@ external bufferToggle:
     ~opening: [@bs.unwrap] [
                 | `Subscribable(t('o))
                 | `Promise(Js.Promise.t('o))
+                | `Repromise(Promise.t('o))
               ],
     ~closing: [@bs.unwrap] [
                 | `Subscribable('o => t('c))
                 | `Promise('o => Js.Promise.t('c))
+                | `Repromise('o => Promise.t('c))
               ]
   ) =>
   operator('a, array('a)) =
@@ -197,6 +200,7 @@ external concatAll: unit => operator(t('a), 'a) = "concatAll";
 external concatMap: ([@bs.unwrap] [
   | `Observable(('a, int) => t('b))
   | `Promise(('a, int) => Js.Promise.t('b))
+  | `Repromise(('a, int) => Promise.t('b))
   | `Array(('a, int) => array('b))
 ]) => operator('a, 'b) = "concatMap";
 
@@ -218,6 +222,7 @@ external concatMap: ([@bs.unwrap] [
 external concatMapTo: ([@bs.unwrap] [
   | `Observable(t('a))
   | `Promise(Js.Promise.t('a))
+  | `Repromise(Promise.t('a))
   | `Array( array('a))
 ]) => operator('b, 'a) = "concatMapTo";
 
@@ -280,6 +285,7 @@ external debounce:
     ~durationSelector: [@bs.unwrap] [
                          | `Subscribable('a => t('a))
                          | `Promise('a => Js.Promise.t('a))
+                         | `Repromise('a => Promise.t('a))
                        ]
   ) =>
   operator('a, 'a) =
@@ -459,6 +465,7 @@ external exhaustMap: (
   [@bs.unwrap] [
     | `Observable(('a, int) => t('b))
     | `Promise(('a, int) => Js.Promise.t('b))
+    | `Repromise(('a, int) => Promise.t('b))
     | `Array(('a, int) => array('b))
   ]
 ) => operator('a, 'b) = "exhaustMap";
@@ -476,6 +483,7 @@ external expand: (
   [@bs.unwrap] [
     | `Observable(('a, int) => t('b))
     | `Promise(('a, int) => Js.Promise.t('b))
+    | `Repromise(('a, int) => Promise.t('b))
     | `Array(('a, int) => array('b))
   ],
   ~concurrent: int=?,
@@ -676,6 +684,7 @@ external mergeMap: (
   [@bs.unwrap] [
     | `Observable(('a, int) => t('b))
     | `Promise(('a, int) => Js.Promise.t('b))
+    | `Repromise(('a, int) => Promise.t('b))
     | `Array(('a, int) => array('b))
   ],
   ~concurrent: int=?
@@ -693,6 +702,7 @@ external mergeMapTo: (
   [@bs.unwrap] [
     | `Observable(t('b))
     | `Promise(Js.Promise.t('b))
+    | `Repromise(Promise.t('b))
     | `Array( array('b))
   ],
   ~concurrent: int=?
@@ -713,6 +723,7 @@ external mergeScan: (
   [@bs.unwrap] [
     | `Observable(('b, 'a, int) => t('b))
     | `Promise(('b, 'a, int) => Js.Promise.t('b))
+    | `Repromise(('b, 'a, int) => Promise.t('b))
     | `Array(('b, 'a, int) => array('b))
   ],
   ~seed: 'b,
@@ -779,6 +790,7 @@ external onErrorResumeNext: (
   [@bs.unwrap] [
     | `Observable(array(t('b)))
     | `Promise(array(Js.Promise.t('b)))
+    | `Repromise(array(Promise.t('b)))
     | `Array(array(array('b)))
   ]
 ) => operator('a, 'b) = "onErrorResumeNext";
@@ -1074,6 +1086,13 @@ external switchAllPromise: unit => operator(Js.Promise.t('a), 'a) = "switchAll";
   producing values only from the most recent observable sequence
  */
 [@bs.module "rxjs/operators"]
+external switchAllRepromise: unit => operator(Promise.t('a), 'a) = "switchAll";
+
+/**
+  Converts a higher-order Observable into a first-order Observable
+  producing values only from the most recent observable sequence
+ */
+[@bs.module "rxjs/operators"]
 external switchAllArray: unit => operator(array('a), 'a) = "switchAll";
 
 /**
@@ -1097,6 +1116,7 @@ external switchMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) = "
 external switchMapTo: ([@bs.unwrap] [
   | `Observable(t('a))
   | `Promise(Js.Promise.t('a))
+  | `Repromise(Promise.t('a))
   | `Array( array('a))
 ]) => operator('b, 'a) = "switchMapTo";
 
@@ -1184,7 +1204,7 @@ external tapObserver: Rx_Types.Observer.t('a, 'e) => operator('a, 'a) = "tap";
  */
 [@bs.module "rxjs/operators"]
 external throttle: (
-  [@bs.unwrap] [`Subscribable('a => t('a)) | `Promise('a => Js.Promise.t('a))],
+  [@bs.unwrap] [`Subscribable('a => t('a)) | `Promise('a => Js.Promise.t('a)) | `Repromise('a => Promise.t('a))],
   ~config: Rx_Types.ThrottleConfig.t=?
 ) => operator('a, 'a) = "throttle";
 
@@ -1258,6 +1278,7 @@ external timeoutWith: (
   ~withObservable: [@bs.unwrap] [
     | `Observable(t('a))
     | `Promise(Js.Promise.t('a))
+    | `Repromise(Promise.t('a))
     | `Array( array('a))
   ],
   ~scheduler: Rx_Scheduler.t=?
@@ -1382,6 +1403,9 @@ external zipAll: unit => operator(t('a), array('a)) = "zipAll";
 external zipAllPromise: unit => operator(Js.Promise.t('a), array('a)) = "zipAll";
 
 [@bs.module "rxjs/operators"]
+external zipAllRepromise: unit => operator(Promise.t('a), array('a)) = "zipAll";
+
+[@bs.module "rxjs/operators"]
 external _zipAllProject: (. (array('a) => 'r)) => operator(t('a), 'r) = "zipAll";
 
 let zipAllProject = (project: projectFn(array('a),'r)) => {
@@ -1411,4 +1435,20 @@ let zipAllPromiseProject = (project: projectFn(array('a),'r)) => {
 
   let _project = _makeVariadic(. project);
   _zipAllPromiseProject(. _project);
+};  
+
+[@bs.module "rxjs/operators"]
+external _zipAllRepromiseProject: (. (array('a) => 'r)) => operator(Promise.t('a), 'r) = "zipAll";
+
+let zipAllRepromiseProject = (project: projectFn(array('a),'r)) => {
+  let _makeVariadic: (. projectFn(array('a),'r)) => projectFn(array('a),'r) = [%bs.raw{|
+    function(fn) {
+      return function(){
+        return fn([].slice.call(arguments))
+      }
+    }
+  |}];
+
+  let _project = _makeVariadic(. project);
+  _zipAllRepromiseProject(. _project);
 };  
