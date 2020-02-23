@@ -10,7 +10,7 @@ Most functionality is available, while ajax / websocket apis are not yet done. R
 ## Installation and Usage
 
 ```
-npm install @ambientlight/bs-rx reason-promise
+npm install @ambientlight/bs-rx reason-promise bs-fetch
 ```
 
 [reason-promise](https://github.com/aantron/promise) and [bs-fetch](https://github.com/reasonml-community/bs-fetch) are peer dependencies
