@@ -543,11 +543,11 @@ describe("Operators", () => {
 
     let result = e1
     |> HotObservable.asObservable
-    |> Rx.Operators.expand(
-      `Observable((x, _idx) => x == 8 
+    |> Rx.Operators.expandn(
+      `Observable(x => x == 8 
         ? Rx.empty 
         : e2 |> ColdObservable.asObservable |> Rx.Operators.map((c, _idx) => c * x)),
-      ())
+    )
     
     ts |> expectObservable(result) |> toBeObservable(expected, ~values)
     ts |> expectSubscriptions(e1 |> HotObservable.subscriptions) |> toBeSubscriptions(e1subs)
@@ -762,10 +762,10 @@ describe("Operators", () => {
 
     let result = e1 
     |> HotObservable.asObservable
-    |> Rx.Operators.mergeMap(`Observable((x, _idx) => 
+    |> Rx.Operators.mergeMapn(`Observable(x => 
       e2 
       |> ColdObservable.asObservable
-      |> Rx.Operators.map((i, _idx) => i * x)
+      |> Rx.Operators.mapn(i => i * x)
     ));
 
     ts |> expectObservable(result) |> toBeObservable(expected, ~values);

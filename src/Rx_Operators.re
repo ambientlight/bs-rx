@@ -3,6 +3,12 @@ open Rx_Observable.Observable;
 type unaryFunction('a, 'b) = 'a => 'b;
 type operator('a, 'b) = t('a) => t('b);
 
+let projectNoIdx = fun
+  | `Observable(pr) => `Observable((value, _) => pr(value))
+  | `Promise(pr) => `Promise((value, _) => pr(value))
+  | `Repromise(pr) => `Repromise((value, _) => pr(value))
+  | `Array(pr) => `Array((value, _) => pr(value));
+
 /**
   Ignores source values for a duration determined by another Observable, then
   emits the most recent value from the source Observable, then repeats this
@@ -203,6 +209,8 @@ external concatMap: ([@bs.unwrap] [
   | `Repromise(('a, int) => Promise.t('b))
   | `Array(('a, int) => array('b))
 ]) => operator('a, 'b) = "concatMap";
+
+let concatMapn = project => concatMap(project |> projectNoIdx);
 
 /**
   Projects each source value to the same Observable which is merged multiple
@@ -470,6 +478,8 @@ external exhaustMap: (
   ]
 ) => operator('a, 'b) = "exhaustMap";
 
+let exhauseMapn = project => exhaustMap(project |> projectNoIdx);
+
 /**
   Recursively projects each source value to an Observable which is merged in the output Observable.
 
@@ -488,8 +498,9 @@ external expand: (
   ],
   ~concurrent: int=?,
   ~scheduler: Rx_Scheduler.t=?,
-  unit
 ) => operator('a, 'b) = "expand";
+
+let expandn = (project, ~concurrent=?, ~scheduler=?) => expand(project |> projectNoIdx, ~concurrent?, ~scheduler?);
 
 /**
   Filter items emitted by the source Observable by only emitting those that satisfy a specified predicate
@@ -498,6 +509,8 @@ external expand: (
  */
 [@bs.module "rxjs/operators"]
 external filter: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) = "filter";
+
+let filtern = project => filter((value, _) => project(value));
 
 /**
   Returns an Observable that mirrors the source Observable, but will call a specified function when
@@ -628,6 +641,8 @@ let last = (~predicate=(_x, _idx, _src) => true, ~defaultValue=?) => _last(~pred
 [@bs.module "rxjs/operators"]
 external map: ([@bs.uncurry] (('a, int) => 'b)) => operator('a, 'b) = "map";
 
+let mapn = project => map((value, _) => project(value));
+
 /**
   Emits the given constant value on the output Observable every time the source Observable emits a value.
   
@@ -689,6 +704,8 @@ external mergeMap: (
   ],
   ~concurrent: int=?
 ) => operator('a, 'b) = "mergeMap";
+
+let mergeMapn = (project, ~concurrent=?) => mergeMap(project |> projectNoIdx, ~concurrent?);
 
 /**
   Projects each source value to the same Observable which is merged multiple times in the output Observable.
@@ -812,6 +829,8 @@ external pairwise: unit => operator('a, ('a, 'a)) = "pairwise";
  */
 [@bs.module "rxjs/operators"]
 external partition: (('a, int) => bool) => unaryFunction(t('a), (t('a), t('a))) = "partition";
+
+let partionn = project => partition((value, _) => project(value));
 
 // Don't feel like pluck is a good fit. use map instead
  
@@ -1046,6 +1065,8 @@ external skipUntil: t('n) => operator('a, 'a) = "skipUntil";
 [@bs.module "rxjs/operators"]
 external skipWhile: ([@bs.uncurry] (('a, int) => bool)) => operator('a, 'a) = "skipWhile";
 
+let skipWhilen = project => skipWhile((value, _) => project(value));
+
 /**
   Returns an Observable that emits the items you specify as arguments before it begins to emit
   items emitted by the source Observable.
@@ -1105,6 +1126,8 @@ external switchAllArray: unit => operator(array('a), 'a) = "switchAll";
 [@bs.module "rxjs/operators"]
 external switchMap: ([@bs.uncurry] (('a, int) => t('b))) => operator('a, 'b) = "switchMap";
 
+let switchMapn = project => switchMap((value, _) => project(value));
+
 /**
   Projects each source value to the same Observable which is flattened multiple
   times with switchMap in the output Observable.
@@ -1160,6 +1183,8 @@ external takeUntil: t('n) => operator('a, 'a) = "takeUntil";
 [@bs.module "rxjs/operators"]
 external takeWhile:
   ([@bs.uncurry] (('a, int) => bool), ~inclusive: bool=?) => operator('a, 'a) = "takeWhile";
+
+let takeWhilen = (project, ~inclusive: option(bool)=?) => takeWhile((value, _) => project(value), ~inclusive?);
 
 [@bs.module "rxjs/operators"]
 external _tap: (
