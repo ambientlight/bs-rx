@@ -27,6 +27,17 @@ Rx.range(~start=1, ~count=200, ())
 )
 ```
 
+You may also utilize **-n**(no idx) suffixed versions of those operators that errase **idx** argument:
+
+```reason
+Rx.range(~start=1, ~count=200, ())
+|> Rx.Operators.filtern(x => x mod 2 == 1)
+|> Rx.Operators.mapn(x => x + x)
+|> Rx.Observable.subscribe(
+  ~next=x=>Js.log(x)
+);
+```
+
 ## Examples
 
 #### Map and flatten each letter to an Observable ticking every 1 second
