@@ -478,7 +478,7 @@ external exhaustMap: (
   ]
 ) => operator('a, 'b) = "exhaustMap";
 
-let exhauseMapn = project => exhaustMap(project |> projectNoIdx);
+let exhaustMapn = project => exhaustMap(project |> projectNoIdx);
 
 /**
   Recursively projects each source value to an Observable which is merged in the output Observable.
