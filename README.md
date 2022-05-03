@@ -3,7 +3,7 @@
 [![LICENSE](https://img.shields.io/github/license/ambientlight/bs-rx?t)](https://github.com/ambientlight/bs-rx/blob/master/LICENSE)
 [![ISSUES](https://img.shields.io/github/issues/ambientlight/bs-rx)](https://github.com/ambientlight/bs-rx/issues)
 
-# bs-rx
+# bs-rx [NO LONGER MAINTAINED]
 Bucklescript bindings for [rxjs v7(alpha)](https://github.com/ReactiveX/rxjs)  
 Most functionality is available, while ajax / websocket apis are not yet done. Refer to [documentation](https://ambientlight.github.io/bs-rx) for existing coverage.
 
